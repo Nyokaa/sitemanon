@@ -4,6 +4,7 @@ import Image from "next/image";
 import { motion } from "framer-motion";
 import { BookingButton } from "@/app/components/BookingButton";
 import { Container } from "@/app/components/Container";
+import { asset } from "@/app/lib/asset";
 
 export function Hero() {
   return (
@@ -103,7 +104,7 @@ function HeroVisual() {
 
       <div className="relative h-full w-full overflow-hidden rounded-[2.5rem] border border-[var(--color-line)] shadow-[0_30px_80px_-30px_rgba(44,58,46,0.45)]">
         <Image
-          src="/images/signature.jpeg"
+          src={asset("/images/signature.jpeg")}
           alt="Pose signature — manucure écaille tortue avec feuilles d'or"
           fill
           priority

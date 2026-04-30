@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Container } from "@/app/components/Container";
 import { SectionHeader } from "@/app/components/SectionHeader";
 import { SITE } from "@/app/lib/site";
+import { asset } from "@/app/lib/asset";
 
 type Category = "nude" | "color" | "art" | "long";
 
@@ -108,7 +109,7 @@ export function Gallery() {
                 }`}
               >
                 <Image
-                  src={item.src}
+                  src={asset(item.src)}
                   alt={item.title}
                   fill
                   sizes="(max-width: 768px) 50vw, 25vw"

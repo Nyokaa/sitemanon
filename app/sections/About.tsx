@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { Container } from "@/app/components/Container";
 import { Reveal } from "@/app/components/Reveal";
 import { BookingButton } from "@/app/components/BookingButton";
+import { asset } from "@/app/lib/asset";
 
 export function About() {
   return (
@@ -90,7 +91,7 @@ function AboutPortrait() {
 
       <div className="relative h-full w-full overflow-hidden rounded-[2rem] border border-[var(--color-line)] shadow-[0_25px_60px_-25px_rgba(44,58,46,0.4)]">
         <Image
-          src="/images/portrait.jpeg"
+          src={asset("/images/portrait.jpeg")}
           alt="Manon Jeanpert, prothésiste ongulaire à Lyon 6"
           fill
           sizes="(max-width: 1024px) 100vw, 480px"
