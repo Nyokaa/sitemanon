@@ -1,0 +1,68 @@
+import type { Metadata, Viewport } from "next";
+import { Fraunces, Inter } from "next/font/google";
+import "./globals.css";
+
+const fraunces = Fraunces({
+  subsets: ["latin"],
+  variable: "--font-fraunces",
+  display: "swap",
+  axes: ["SOFT", "WONK", "opsz"],
+});
+
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-inter",
+  display: "swap",
+});
+
+const SITE_URL = "https://manonjeanpert.com";
+
+export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
+  title: {
+    default: "Manon Jeanpert — Prothésiste ongulaire à Lyon 6 | Tête d'Or",
+    template: "%s · Manon Jeanpert",
+  },
+  description:
+    "Prothésiste ongulaire à Lyon 6, à deux pas du Parc de la Tête d'Or. Pose semi-permanent, gel, rallongement et nail art sur-mesure dans un studio privé. Diagnostic personnalisé et hygiène irréprochable.",
+  keywords: [
+    "prothésiste ongulaire Lyon 6",
+    "manucure Lyon 6",
+    "pose gel Lyon",
+    "semi-permanent Lyon",
+    "nail art Lyon",
+    "rallongement ongles Lyon",
+    "Tête d'Or",
+    "Manon Jeanpert",
+  ],
+  authors: [{ name: "Manon Jeanpert" }],
+  openGraph: {
+    type: "website",
+    locale: "fr_FR",
+    url: SITE_URL,
+    siteName: "Manon Jeanpert",
+    title: "Manon Jeanpert — Prothésiste ongulaire à Lyon 6",
+    description:
+      "Studio privé à Lyon 6. Diagnostic personnalisé, pose durable, hygiène irréprochable. Réservation en ligne sur Planity.",
+  },
+  alternates: { canonical: SITE_URL },
+  icons: { icon: "/favicon.ico" },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#2c3a2e",
+  width: "device-width",
+  initialScale: 1,
+};
+
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <html lang="fr" className={`${fraunces.variable} ${inter.variable}`}>
+      <body>{children}</body>
+    </html>
+  );
+}

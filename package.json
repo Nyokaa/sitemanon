@@ -1,19 +1,32 @@
 {
   "name": "sitemanon",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "Site web de Manon Jeanpert, prothésiste ongulaire à Lyon 6",
+  "private": true,
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
   },
   "repository": {
     "type": "git",
     "url": "http://local_proxy@127.0.0.1:34177/git/Nyokaa/sitemanon"
   },
-  "keywords": [],
-  "author": "",
   "license": "ISC",
   "dependencies": {
-    "framer-motion": "^12.38.0"
+    "framer-motion": "^12.38.0",
+    "next": "^15.5.15",
+    "react": "^19.2.5",
+    "react-dom": "^19.2.5"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.2.4",
+    "@types/node": "^22.10.0",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "postcss": "^8.5.12",
+    "tailwindcss": "^4.2.4",
+    "typescript": "^5.6.0"
   }
 }
