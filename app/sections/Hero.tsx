@@ -112,8 +112,8 @@ function HeroVisual() {
           className="object-cover"
         />
 
-        <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-[var(--color-ink)]/75 via-[var(--color-ink)]/15 to-transparent p-6 pr-8">
-          <p className="font-serif text-base italic leading-snug text-white/95 md:text-lg">
+        <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/45 to-transparent p-6 pr-8 pt-16">
+          <p className="font-serif text-base italic leading-snug text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.5)] md:text-lg">
             « Une pose jamais standardisée,
             <br className="hidden md:inline" /> toujours adaptée. »
           </p>
