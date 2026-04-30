@@ -44,7 +44,7 @@ export const SERVICES = [
       "Pose semi-permanente sur ongles naturels, finition impeccable, tenue 2 à 3 semaines.",
     duration: "1 h 30",
     price: "70 €",
-    highlight: false,
+    highlight: true,
   },
   {
     id: "gel-naturel",
@@ -53,7 +53,7 @@ export const SERVICES = [
       "Renforcement et sublimation de l'ongle naturel, sans ajout de longueur. Tenue 3 à 4 semaines.",
     duration: "1 h 30",
     price: "95 €",
-    highlight: true,
+    highlight: false,
   },
   {
     id: "remplissage",
@@ -62,7 +62,7 @@ export const SERVICES = [
       "Entretien de votre pose existante toutes les 3 à 4 semaines, pour un résultat toujours net.",
     duration: "2 h",
     price: "105 €",
-    highlight: false,
+    highlight: true,
   },
   {
     id: "rallongement",
@@ -71,7 +71,7 @@ export const SERVICES = [
       "Création d'une longueur sur-mesure, forme adaptée à votre main et à votre quotidien.",
     duration: "2 h 15",
     price: "125 €",
-    highlight: true,
+    highlight: false,
   },
   {
     id: "soins-signature",
