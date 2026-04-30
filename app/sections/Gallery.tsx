@@ -1,30 +1,43 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { Container } from "@/app/components/Container";
 import { SectionHeader } from "@/app/components/SectionHeader";
+import { SITE } from "@/app/lib/site";
+
+type Category = "nude" | "color" | "art" | "long";
 
 type Item = {
   id: string;
-  category: "nude" | "color" | "art" | "long";
+  category: Category;
   title: string;
-  gradient: string;
+  src: string;
   ratio: "tall" | "wide" | "square";
 };
 
 const ITEMS: Item[] = [
-  { id: "1", category: "nude", title: "Babyboomer pêche", gradient: "from-[#fde0d0] via-[#f5b8a4] to-[#d98a73]", ratio: "tall" },
-  { id: "2", category: "art", title: "Fleurs séchées", gradient: "from-[#fce4ec] via-[#f5b6c8] to-[#c97ba0]", ratio: "wide" },
-  { id: "3", category: "color", title: "Magenta glacé", gradient: "from-[#f5b8d3] via-[#c14d7c] to-[#7d2747]", ratio: "square" },
-  { id: "4", category: "nude", title: "Nude minimaliste", gradient: "from-[#f4e4d4] via-[#e7c8b1] to-[#b69279]", ratio: "tall" },
-  { id: "5", category: "long", title: "Amande marbrée", gradient: "from-[#fbe4d6] via-[#e8a89f] to-[#a26d8a]", ratio: "wide" },
-  { id: "6", category: "art", title: "Aquarelle pastel", gradient: "from-[#f9e5d8] via-[#e2bdb1] to-[#a17b96]", ratio: "square" },
-  { id: "7", category: "color", title: "Orange & fuchsia", gradient: "from-[#ffd6a5] via-[#ff8b6a] to-[#c93f74]", ratio: "tall" },
-  { id: "8", category: "long", title: "Stiletto rosé", gradient: "from-[#fde0d6] via-[#f0a895] to-[#b06b6f]", ratio: "wide" },
+  { id: "n1", category: "nude", title: "Nude amande long", src: "/images/gallery/nude-1.png", ratio: "tall" },
+  { id: "n2", category: "nude", title: "Ombré rosé naturel", src: "/images/gallery/nudes-rose.png", ratio: "wide" },
+  { id: "n3", category: "nude", title: "Rallongement nude", src: "/images/gallery/long2.png", ratio: "square" },
+
+  { id: "c1", category: "color", title: "Écaille caramel & or", src: "/images/gallery/couleurs1.png", ratio: "tall" },
+  { id: "c2", category: "color", title: "Ombré pêche & fleurs séchées", src: "/images/gallery/couleurs2.png", ratio: "square" },
+  { id: "c3", category: "color", title: "French jaune pailleté", src: "/images/gallery/couleurs3.png", ratio: "wide" },
+
+  { id: "l1", category: "long", title: "Marbré rose long", src: "/images/gallery/couleurs4.jpeg", ratio: "tall" },
+
+  { id: "a1", category: "art", title: "Fleurs roses french", src: "/images/gallery/nailart1.jpeg", ratio: "wide" },
+  { id: "a2", category: "art", title: "Nail art floral", src: "/images/gallery/nailart1.png", ratio: "square" },
+  { id: "a3", category: "art", title: "Fleurs séchées coral", src: "/images/gallery/nailart2.jpeg", ratio: "tall" },
+  { id: "a4", category: "art", title: "Fleurs blanches & jaunes", src: "/images/gallery/nailart3.jpeg", ratio: "wide" },
+  { id: "a5", category: "art", title: "Personnage Disney", src: "/images/gallery/nailart4.jpeg", ratio: "square" },
+  { id: "a6", category: "art", title: "Cinéma & couleurs", src: "/images/gallery/nailart5.jpeg", ratio: "tall" },
+  { id: "a7", category: "art", title: "Création signature", src: "/images/gallery/nailart6.jpeg", ratio: "wide" },
 ];
 
-const FILTERS: { id: Item["category"] | "all"; label: string }[] = [
+const FILTERS: { id: Category | "all"; label: string }[] = [
   { id: "all", label: "Tout voir" },
   { id: "nude", label: "Nude & naturel" },
   { id: "color", label: "Couleur" },
@@ -33,7 +46,7 @@ const FILTERS: { id: Item["category"] | "all"; label: string }[] = [
 ];
 
 export function Gallery() {
-  const [filter, setFilter] = useState<Item["category"] | "all">("all");
+  const [filter, setFilter] = useState<Category | "all">("all");
   const visible = ITEMS.filter((i) => filter === "all" || i.category === filter);
 
   return (
@@ -46,7 +59,7 @@ export function Gallery() {
             intro="Quelques pièces récentes du studio. Chaque pose est unique et conçue pour vous."
           />
           <a
-            href={`https://www.instagram.com/`}
+            href={SITE.instagramUrl}
             target="_blank"
             rel="noopener noreferrer"
             className="hidden text-sm text-[var(--color-ink)]/70 underline-offset-4 hover:text-[var(--color-ink)] hover:underline md:inline"
@@ -75,10 +88,7 @@ export function Gallery() {
           })}
         </div>
 
-        <motion.div
-          layout
-          className="mt-10 grid grid-cols-2 gap-4 md:grid-cols-4"
-        >
+        <motion.div layout className="mt-10 grid grid-cols-2 gap-4 md:grid-cols-4">
           <AnimatePresence mode="popLayout">
             {visible.map((item) => (
               <motion.figure
@@ -89,7 +99,7 @@ export function Gallery() {
                 exit={{ opacity: 0, scale: 0.96 }}
                 transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
                 whileHover={{ y: -6 }}
-                className={`group relative overflow-hidden rounded-2xl border border-[var(--color-line)] shadow-sm ${
+                className={`group relative overflow-hidden rounded-2xl border border-[var(--color-line)] bg-[var(--color-bg-soft)]/40 shadow-sm ${
                   item.ratio === "tall"
                     ? "aspect-[3/4]"
                     : item.ratio === "wide"
@@ -97,9 +107,14 @@ export function Gallery() {
                     : "aspect-square"
                 }`}
               >
-                <div className={`absolute inset-0 bg-gradient-to-br ${item.gradient}`} />
-                <NailMotif />
-                <figcaption className="absolute inset-x-0 bottom-0 translate-y-2 bg-gradient-to-t from-[var(--color-ink)]/70 to-transparent p-4 text-white opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100">
+                <Image
+                  src={item.src}
+                  alt={item.title}
+                  fill
+                  sizes="(max-width: 768px) 50vw, 25vw"
+                  className="object-cover transition-transform duration-500 group-hover:scale-[1.04]"
+                />
+                <figcaption className="absolute inset-x-0 bottom-0 translate-y-2 bg-gradient-to-t from-[var(--color-ink)]/80 via-[var(--color-ink)]/30 to-transparent p-4 text-white opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100">
                   <p className="text-[10px] uppercase tracking-[0.2em] text-white/70">
                     {labelFor(item.category)}
                   </p>
@@ -109,40 +124,16 @@ export function Gallery() {
             ))}
           </AnimatePresence>
         </motion.div>
-
-        <p className="mt-10 text-center text-xs uppercase tracking-[0.2em] text-[var(--color-ink)]/55">
-          Visuels illustratifs — remplacer par vos photos en haute résolution
-        </p>
       </Container>
     </section>
   );
 }
 
-function labelFor(c: Item["category"]) {
+function labelFor(c: Category) {
   return {
     nude: "Nude",
     color: "Couleur",
     art: "Nail art",
     long: "Rallongement",
   }[c];
-}
-
-function NailMotif() {
-  return (
-    <svg
-      className="absolute inset-0 h-full w-full opacity-80"
-      viewBox="0 0 200 280"
-      preserveAspectRatio="xMidYMid slice"
-      aria-hidden
-    >
-      <defs>
-        <linearGradient id="nm" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#fff" stopOpacity="0.65" />
-          <stop offset="100%" stopColor="#fff" stopOpacity="0" />
-        </linearGradient>
-      </defs>
-      <ellipse cx="100" cy="140" rx="50" ry="90" fill="url(#nm)" />
-      <ellipse cx="100" cy="100" rx="35" ry="20" fill="#fff" opacity="0.35" />
-    </svg>
-  );
 }

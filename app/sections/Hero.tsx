@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { motion } from "framer-motion";
 import { BookingButton } from "@/app/components/BookingButton";
 import { Container } from "@/app/components/Container";
@@ -101,60 +102,23 @@ function HeroVisual() {
       <div className="absolute -inset-6 rounded-[3rem] bg-gradient-to-br from-[#f3d4c1] via-[#e9b8a3] to-[#c97e63] opacity-40 blur-2xl" />
 
       <div className="relative h-full w-full overflow-hidden rounded-[2.5rem] border border-[var(--color-line)] shadow-[0_30px_80px_-30px_rgba(44,58,46,0.45)]">
-        <div className="absolute inset-0 bg-gradient-to-br from-[#f5dccb] via-[#eab8a0] to-[#c98770]" />
+        <Image
+          src="/images/signature.jpeg"
+          alt="Pose signature — manucure écaille tortue avec feuilles d'or"
+          fill
+          priority
+          sizes="(max-width: 768px) 100vw, 480px"
+          className="object-cover"
+        />
 
-        <svg
-          className="absolute inset-0 h-full w-full opacity-90"
-          viewBox="0 0 400 540"
-          preserveAspectRatio="xMidYMid slice"
-          aria-hidden
-        >
-          <defs>
-            <radialGradient id="nail-grad" cx="50%" cy="35%" r="65%">
-              <stop offset="0%" stopColor="#fff" stopOpacity="0.85" />
-              <stop offset="60%" stopColor="#fce6da" stopOpacity="0.6" />
-              <stop offset="100%" stopColor="#c97e63" stopOpacity="0.0" />
-            </radialGradient>
-            <linearGradient id="nail-shape" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#fff" stopOpacity="0.95" />
-              <stop offset="60%" stopColor="#fad9c8" stopOpacity="0.85" />
-              <stop offset="100%" stopColor="#e8a98e" stopOpacity="0.95" />
-            </linearGradient>
-          </defs>
-          <rect width="400" height="540" fill="url(#nail-grad)" />
-          {[
-            { x: 90, y: 220, w: 38, h: 150, r: 18 },
-            { x: 150, y: 180, w: 42, h: 200, r: 20 },
-            { x: 215, y: 165, w: 44, h: 220, r: 21 },
-            { x: 282, y: 200, w: 40, h: 180, r: 19 },
-          ].map((n, i) => (
-            <rect
-              key={i}
-              x={n.x}
-              y={n.y}
-              width={n.w}
-              height={n.h}
-              rx={n.r}
-              fill="url(#nail-shape)"
-              opacity="0.95"
-            />
-          ))}
-          <g opacity="0.85">
-            <circle cx="232" cy="190" r="3" fill="#c14d6b" />
-            <circle cx="240" cy="200" r="2" fill="#7e8d4f" />
-            <circle cx="225" cy="205" r="2.5" fill="#e3a8c3" />
-            <path d="M222 215 q5 -8 12 -2" stroke="#a85a3a" strokeWidth="1" fill="none" />
-          </g>
-        </svg>
-
-        <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-[var(--color-ink)]/55 via-[var(--color-ink)]/10 to-transparent p-6">
+        <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-[var(--color-ink)]/65 via-[var(--color-ink)]/10 to-transparent p-6">
           <p className="font-serif text-lg italic text-white/95">
             « Une pose jamais standardisée, toujours adaptée. »
           </p>
         </div>
 
         <div className="absolute left-4 top-4 rounded-full bg-white/85 px-3 py-1 text-[10px] uppercase tracking-[0.2em] text-[var(--color-ink)] backdrop-blur">
-          Photo signature
+          Pose signature
         </div>
       </div>
 

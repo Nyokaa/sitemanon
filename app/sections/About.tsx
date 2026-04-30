@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { motion } from "framer-motion";
 import { Container } from "@/app/components/Container";
 import { Reveal } from "@/app/components/Reveal";
@@ -88,17 +89,15 @@ function AboutPortrait() {
       <div className="absolute inset-0 -rotate-2 rounded-[2rem] bg-[var(--color-bg-soft)] shadow-sm" />
 
       <div className="relative h-full w-full overflow-hidden rounded-[2rem] border border-[var(--color-line)] shadow-[0_25px_60px_-25px_rgba(44,58,46,0.4)]">
-        <div className="absolute inset-0 bg-gradient-to-br from-[#d8c4a9] via-[#b89d7f] to-[#5d6b50]" />
-        <svg className="absolute inset-0 h-full w-full opacity-90" viewBox="0 0 400 500" preserveAspectRatio="xMidYMid slice" aria-hidden>
-          <rect width="400" height="500" fill="#cdb89a" />
-          <rect x="0" y="320" width="400" height="180" fill="#7d8a68" />
-          <circle cx="200" cy="190" r="55" fill="#d8b69a" />
-          <path d="M150 275 q50 -40 100 0 v60 h-100z" fill="#c08e6f" />
-          <ellipse cx="200" cy="155" rx="58" ry="45" fill="#3a3429" />
-          <rect x="160" y="280" width="80" height="140" fill="#a87a5b" rx="6" />
-        </svg>
+        <Image
+          src="/images/portrait.jpeg"
+          alt="Manon Jeanpert, prothésiste ongulaire à Lyon 6"
+          fill
+          sizes="(max-width: 1024px) 100vw, 480px"
+          className="object-cover"
+        />
 
-        <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-[var(--color-ink)]/70 to-transparent p-6">
+        <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-[var(--color-ink)]/80 via-[var(--color-ink)]/20 to-transparent p-6">
           <p className="text-xs uppercase tracking-[0.2em] text-white/80">Manon Jeanpert</p>
           <p className="mt-1 font-serif text-xl text-white">
             Prothésiste ongulaire à Lyon 6
