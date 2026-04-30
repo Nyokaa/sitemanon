@@ -15,27 +15,26 @@ type Item = {
   category: Category;
   title: string;
   src: string;
-  ratio: "tall" | "wide" | "square";
 };
 
 const ITEMS: Item[] = [
-  { id: "n1", category: "nude", title: "Nude amande long", src: "/images/gallery/nude-1.png", ratio: "tall" },
-  { id: "n2", category: "nude", title: "Ombré rosé naturel", src: "/images/gallery/nudes-rose.png", ratio: "wide" },
-  { id: "n3", category: "nude", title: "Rallongement nude", src: "/images/gallery/long2.png", ratio: "square" },
+  { id: "n1", category: "nude", title: "Nude amande long", src: "/images/gallery/nude-1.png" },
+  { id: "n2", category: "nude", title: "Ombré rosé naturel", src: "/images/gallery/nudes-rose.png" },
+  { id: "n3", category: "nude", title: "Rallongement nude", src: "/images/gallery/long2.png" },
 
-  { id: "c1", category: "color", title: "Écaille caramel & or", src: "/images/gallery/couleurs1.png", ratio: "tall" },
-  { id: "c2", category: "color", title: "Ombré pêche & fleurs séchées", src: "/images/gallery/couleurs2.png", ratio: "square" },
-  { id: "c3", category: "color", title: "French jaune pailleté", src: "/images/gallery/couleurs3.png", ratio: "wide" },
+  { id: "c1", category: "color", title: "Écaille caramel & or", src: "/images/gallery/couleurs1.png" },
+  { id: "c2", category: "color", title: "Ombré pêche & fleurs séchées", src: "/images/gallery/couleurs2.png" },
+  { id: "c3", category: "color", title: "French jaune pailleté", src: "/images/gallery/couleurs3.png" },
 
-  { id: "l1", category: "long", title: "Marbré rose long", src: "/images/gallery/couleurs4.jpeg", ratio: "tall" },
+  { id: "l1", category: "long", title: "Marbré rose long", src: "/images/gallery/couleurs4.jpeg" },
 
-  { id: "a1", category: "art", title: "Fleurs roses french", src: "/images/gallery/nailart1.jpeg", ratio: "wide" },
-  { id: "a2", category: "art", title: "Nail art floral", src: "/images/gallery/nailart1.png", ratio: "square" },
-  { id: "a3", category: "art", title: "Fleurs séchées coral", src: "/images/gallery/nailart2.jpeg", ratio: "tall" },
-  { id: "a4", category: "art", title: "Fleurs blanches & jaunes", src: "/images/gallery/nailart3.jpeg", ratio: "wide" },
-  { id: "a5", category: "art", title: "Personnage Disney", src: "/images/gallery/nailart4.jpeg", ratio: "square" },
-  { id: "a6", category: "art", title: "Cinéma & couleurs", src: "/images/gallery/nailart5.jpeg", ratio: "tall" },
-  { id: "a7", category: "art", title: "Création signature", src: "/images/gallery/nailart6.jpeg", ratio: "wide" },
+  { id: "a1", category: "art", title: "Fleurs roses french", src: "/images/gallery/nailart1.jpeg" },
+  { id: "a2", category: "art", title: "Nail art floral", src: "/images/gallery/nailart1.png" },
+  { id: "a3", category: "art", title: "Fleurs séchées coral", src: "/images/gallery/nailart2.jpeg" },
+  { id: "a4", category: "art", title: "Fleurs blanches & jaunes", src: "/images/gallery/nailart3.jpeg" },
+  { id: "a5", category: "art", title: "Personnage Disney", src: "/images/gallery/nailart4.jpeg" },
+  { id: "a6", category: "art", title: "Cinéma & couleurs", src: "/images/gallery/nailart5.jpeg" },
+  { id: "a7", category: "art", title: "Création signature", src: "/images/gallery/nailart6.jpeg" },
 ];
 
 const FILTERS: { id: Category | "all"; label: string }[] = [
@@ -100,13 +99,7 @@ export function Gallery() {
                 exit={{ opacity: 0, scale: 0.96 }}
                 transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
                 whileHover={{ y: -6 }}
-                className={`group relative overflow-hidden rounded-2xl border border-[var(--color-line)] bg-[var(--color-bg-soft)]/40 shadow-sm ${
-                  item.ratio === "tall"
-                    ? "aspect-[3/4]"
-                    : item.ratio === "wide"
-                    ? "aspect-[4/3]"
-                    : "aspect-square"
-                }`}
+                className="group relative aspect-[3/4] overflow-hidden rounded-2xl border border-[var(--color-line)] bg-[var(--color-bg-soft)]/40 shadow-sm"
               >
                 <Image
                   src={asset(item.src)}
