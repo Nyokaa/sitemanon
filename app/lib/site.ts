@@ -17,15 +17,13 @@ export const SITE = {
     "https://www.planity.com/manon-jeanpert-prothesiste-ongulaire-69006-lyon",
   googleBusinessUrl:
     "https://www.google.com/search?q=Manon+Jeanpert+Proth%C3%A9siste+ongulaire+Lyon+6",
-  instagramUrl: "https://www.instagram.com/",
+  instagramUrl: "https://www.instagram.com/manonjeanpert/",
   facebookUrl: "https://www.facebook.com/",
   hours: [
-    { day: "Mardi", time: "9h30 — 19h00" },
-    { day: "Mercredi", time: "9h30 — 19h00" },
-    { day: "Jeudi", time: "9h30 — 19h00" },
-    { day: "Vendredi", time: "9h30 — 19h00" },
-    { day: "Samedi", time: "9h00 — 17h00" },
-    { day: "Dimanche & Lundi", time: "Fermé" },
+    { day: "Lundi — Jeudi", time: "10h00 — 19h00" },
+    { day: "Vendredi", time: "10h00 — 13h00" },
+    { day: "Samedi", time: "10h00 — 15h00" },
+    { day: "Dimanche", time: "Fermé" },
   ],
 };
 

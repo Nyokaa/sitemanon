@@ -34,15 +34,21 @@ export function JsonLd() {
     openingHoursSpecification: [
       {
         "@type": "OpeningHoursSpecification",
-        dayOfWeek: ["Tuesday", "Wednesday", "Thursday", "Friday"],
-        opens: "09:30",
+        dayOfWeek: ["Monday", "Tuesday", "Wednesday", "Thursday"],
+        opens: "10:00",
         closes: "19:00",
       },
       {
         "@type": "OpeningHoursSpecification",
+        dayOfWeek: "Friday",
+        opens: "10:00",
+        closes: "13:00",
+      },
+      {
+        "@type": "OpeningHoursSpecification",
         dayOfWeek: "Saturday",
-        opens: "09:00",
-        closes: "17:00",
+        opens: "10:00",
+        closes: "15:00",
       },
     ],
     sameAs: [SITE.googleBusinessUrl, SITE.instagramUrl, SITE.facebookUrl],

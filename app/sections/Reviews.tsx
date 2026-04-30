@@ -7,21 +7,24 @@ import { SITE } from "@/app/lib/site";
 
 const REVIEWS = [
   {
-    author: "Camille",
+    author: "Maria & Mélanie",
+    role: "Clientes fidèles",
     body:
-      "Manon est à l'écoute, très professionnelle et son travail est impeccable. Le diagnostic au début change tout, je n'avais jamais eu une pose aussi adaptée.",
+      "Manon est très professionnelle, agréable, bienveillante. Des produits de qualité, une hygiène irréprochable, le tout dans la bonne humeur — un vrai moment de détente qui fait du bien au cœur.",
     rating: 5,
   },
   {
-    author: "Sarah",
+    author: "Une cliente",
+    role: "Avis Google",
     body:
-      "Studio impeccable, hygiène irréprochable, et un résultat qui tient des semaines sans broncher. Je recommande à 100% pour Lyon 6.",
+      "Manon est très agréable et fait surtout un très beau travail. Très soignée, le rendu est impeccable. Elle n'a pas hésité à m'arranger pour partir en vacances avec de jolies ongles malgré mes contraintes — c'est très sympa.",
     rating: 5,
   },
   {
-    author: "Léa",
+    author: "Cliente abonnée",
+    role: "Avis Google",
     body:
-      "Pose élégante, finition parfaite et un vrai moment pour soi. Manon prend le temps, on se sent bien dans son studio.",
+      "Très bonne professionnelle, elle m'a donné beaucoup de conseils et expliqué étape par étape. La santé de l'ongle passe avant tout — elle ne vous vendra jamais une prestation inutile. Mes ongles étaient en mauvais état, ils sont aujourd'hui solides. Je recommande à 100 %.",
     rating: 5,
   },
 ];
@@ -60,9 +63,14 @@ export function Reviews() {
               <p className="mt-5 grow font-serif text-lg leading-relaxed text-[var(--color-ink)]/90">
                 « {r.body} »
               </p>
-              <p className="mt-6 text-sm uppercase tracking-[0.18em] text-[var(--color-ink)]/55">
-                — {r.author}
-              </p>
+              <div className="mt-6">
+                <p className="font-serif text-base text-[var(--color-ink)]">
+                  — {r.author}
+                </p>
+                <p className="mt-1 text-xs uppercase tracking-[0.18em] text-[var(--color-ink)]/45">
+                  {r.role}
+                </p>
+              </div>
             </motion.li>
           ))}
         </ul>
