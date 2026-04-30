@@ -4,25 +4,28 @@ import { motion } from "framer-motion";
 import { Container } from "@/app/components/Container";
 import { TRUST_PILLARS } from "@/app/lib/site";
 
-const ICONS = [
-  // diagnostic
-  <path key="d" d="M11 4a7 7 0 1 1-4.95 11.95M11 4v7l4 4" />,
-  // hygiène
-  <>
-    <path key="h1" d="M5 12h14" />
-    <path key="h2" d="M7 12V7a5 5 0 0 1 10 0v5" />
-    <path key="h3" d="M5 12v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6" />
-  </>,
-  // studio
-  <>
-    <path key="s1" d="M3 21V8l9-5 9 5v13" />
-    <path key="s2" d="M9 21v-7h6v7" />
-  </>,
-  // tenue
-  <>
-    <path key="t1" d="M12 2v6" />
-    <path key="t2" d="M5 12c0-3 3-5 7-5s7 2 7 5-3 10-7 10-7-7-7-10z" />
-  </>,
+const ICONS: React.ReactNode[] = [
+  // 0 — Diagnostic personnalisé : loupe avec check
+  <g key="d">
+    <circle cx="11" cy="11" r="7" />
+    <path d="m20 20-3.5-3.5" />
+    <path d="m8.5 11 2 2 3-3" />
+  </g>,
+  // 1 — Hygiène irréprochable : bouclier avec check
+  <g key="h">
+    <path d="M12 3 4 6v6c0 5 3.5 8 8 9 4.5-1 8-4 8-9V6l-8-3z" />
+    <path d="m8.5 12 2.5 2.5 4.5-4.5" />
+  </g>,
+  // 2 — Studio Lyon 6 : pin localisation
+  <g key="s">
+    <path d="M12 21s7-6 7-11a7 7 0 1 0-14 0c0 5 7 11 7 11z" />
+    <circle cx="12" cy="10" r="2.5" />
+  </g>,
+  // 3 — Tenue durable : horloge
+  <g key="t">
+    <circle cx="12" cy="12" r="9" />
+    <path d="M12 7v5l3 2" />
+  </g>,
 ];
 
 export function TrustStrip() {
