@@ -112,12 +112,6 @@ function HeroVisual() {
           className="object-cover"
         />
 
-        <div className="absolute inset-x-0 bottom-0 bg-[var(--color-ink)]/80 px-6 py-5 backdrop-blur-[2px]">
-          <p className="font-serif text-base italic leading-snug text-white md:text-lg">
-            « Une pose jamais standardisée, toujours adaptée. »
-          </p>
-        </div>
-
         <div className="absolute left-4 top-4 rounded-full bg-white/85 px-3 py-1 text-[10px] uppercase tracking-[0.2em] text-[var(--color-ink)] backdrop-blur">
           Pose signature
         </div>
