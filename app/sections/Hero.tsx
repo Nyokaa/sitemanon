@@ -112,9 +112,10 @@ function HeroVisual() {
           className="object-cover"
         />
 
-        <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-[var(--color-ink)]/65 via-[var(--color-ink)]/10 to-transparent p-6">
-          <p className="font-serif text-lg italic text-white/95">
-            « Une pose jamais standardisée, toujours adaptée. »
+        <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-[var(--color-ink)]/75 via-[var(--color-ink)]/15 to-transparent p-6 pr-8">
+          <p className="font-serif text-base italic leading-snug text-white/95 md:text-lg">
+            « Une pose jamais standardisée,
+            <br className="hidden md:inline" /> toujours adaptée. »
           </p>
         </div>
 
@@ -123,7 +124,7 @@ function HeroVisual() {
         </div>
       </div>
 
-      <div className="absolute -bottom-6 -left-6 hidden rounded-2xl border border-[var(--color-line)] bg-[var(--color-bg-soft)]/95 px-5 py-4 shadow-lg backdrop-blur md:block">
+      <div className="absolute -bottom-6 -right-6 hidden rounded-2xl border border-[var(--color-line)] bg-[var(--color-bg-soft)]/95 px-5 py-4 shadow-lg backdrop-blur md:block">
         <p className="text-[10px] uppercase tracking-[0.2em] text-[var(--color-accent)]">
           Réservation
         </p>
