@@ -41,7 +41,7 @@ export const SERVICES = [
     id: "semi",
     name: "Semi-permanent",
     description:
-      "Pose semi-permanente sur ongles naturels, finition impeccable, tenue 2 à 3 semaines.",
+      "Pose semi-permanente sur ongles naturels, finition impeccable, tenue jusqu'à 4 semaines.",
     duration: "1 h 30",
     price: "70 €",
     highlight: true,
@@ -116,7 +116,7 @@ export const FAQ = [
   },
   {
     q: "Combien de temps tient une pose ?",
-    a: "Le semi-permanent tient en moyenne 2 à 3 semaines. Le gel sur ongles naturels et le rallongement tiennent 3 à 4 semaines, avec un remplissage recommandé pour préserver la qualité.",
+    a: "Le semi-permanent tient en moyenne 4 semaines. Le gel sur ongles naturels et le rallongement tiennent également jusqu'à 4 semaines, avec un remplissage recommandé pour préserver la qualité.",
   },
   {
     q: "Faut-il déposer chez vous si j'ai déjà du gel ?",
@@ -132,7 +132,7 @@ export const FAQ = [
   },
   {
     q: "Quels moyens de paiement acceptez-vous ?",
-    a: "Espèces, carte bancaire et virement. L'acompte éventuel est précisé au moment de la réservation.",
+    a: "Espèces et carte bancaire. L'acompte éventuel est précisé au moment de la réservation.",
   },
 ];
 
