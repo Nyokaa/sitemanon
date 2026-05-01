@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Image from "next/image";
-import { motion, AnimatePresence } from "framer-motion";
+import useEmblaCarousel from "embla-carousel-react";
+import { motion } from "framer-motion";
 import { Container } from "@/app/components/Container";
 import { SectionHeader } from "@/app/components/SectionHeader";
 import { SITE } from "@/app/lib/site";
@@ -47,9 +48,53 @@ const FILTERS: { id: Category | "all"; label: string }[] = [
   { id: "long", label: "Rallongement" },
 ];
 
+const LABELS: Record<Category, string> = {
+  nude: "Nude",
+  color: "Couleur",
+  art: "Nail art",
+  long: "Rallongement",
+};
+
 export function Gallery() {
   const [filter, setFilter] = useState<Category | "all">("all");
-  const visible = ITEMS.filter((i) => filter === "all" || i.category === filter);
+  const [emblaRef, emblaApi] = useEmblaCarousel({
+    loop: true,
+    align: "start",
+    skipSnaps: false,
+    dragFree: false,
+  });
+  const [selectedIndex, setSelectedIndex] = useState(0);
+  const [scrollSnaps, setScrollSnaps] = useState<number[]>([]);
+
+  const visible = ITEMS.filter(
+    (i) => filter === "all" || i.category === filter
+  );
+
+  const scrollPrev = useCallback(() => emblaApi?.scrollPrev(), [emblaApi]);
+  const scrollNext = useCallback(() => emblaApi?.scrollNext(), [emblaApi]);
+  const scrollTo = useCallback(
+    (i: number) => emblaApi?.scrollTo(i),
+    [emblaApi]
+  );
+
+  const onSelect = useCallback(() => {
+    if (!emblaApi) return;
+    setSelectedIndex(emblaApi.selectedScrollSnap());
+  }, [emblaApi]);
+
+  useEffect(() => {
+    if (!emblaApi) return;
+    setScrollSnaps(emblaApi.scrollSnapList());
+    onSelect();
+    emblaApi.on("select", onSelect);
+    emblaApi.on("reInit", onSelect);
+  }, [emblaApi, onSelect]);
+
+  useEffect(() => {
+    if (!emblaApi) return;
+    emblaApi.reInit();
+    emblaApi.scrollTo(0, true);
+  }, [filter, emblaApi]);
 
   return (
     <section id="galerie" className="relative py-24 md:py-32">
@@ -89,47 +134,97 @@ export function Gallery() {
             );
           })}
         </div>
-
-        <motion.div layout className="mt-10 grid grid-cols-2 gap-4 md:grid-cols-4">
-          <AnimatePresence mode="popLayout">
-            {visible.map((item) => (
-              <motion.figure
-                key={item.id}
-                layout
-                initial={{ opacity: 0, scale: 0.96 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.96 }}
-                transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-                whileHover={{ y: -6 }}
-                className="group relative aspect-[3/4] overflow-hidden rounded-2xl border border-[var(--color-line)] bg-[var(--color-bg-soft)]/40 shadow-sm"
-              >
-                <Image
-                  src={asset(item.src)}
-                  alt={item.alt ?? item.title}
-                  fill
-                  sizes="(max-width: 768px) 50vw, 25vw"
-                  className="object-cover transition-transform duration-500 group-hover:scale-[1.04]"
-                />
-                <figcaption className="absolute inset-x-0 bottom-0 translate-y-2 bg-gradient-to-t from-[var(--color-ink)]/80 via-[var(--color-ink)]/30 to-transparent p-4 text-white opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100">
-                  <p className="text-[10px] uppercase tracking-[0.2em] text-white/70">
-                    {labelFor(item.category)}
-                  </p>
-                  <p className="mt-1 font-serif text-base">{item.title}</p>
-                </figcaption>
-              </motion.figure>
-            ))}
-          </AnimatePresence>
-        </motion.div>
       </Container>
+
+      <div className="mt-10">
+        <div className="relative">
+          <div className="overflow-hidden" ref={emblaRef}>
+            <div className="flex">
+              {visible.map((item) => (
+                <motion.figure
+                  key={item.id}
+                  initial={{ opacity: 0.4 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.4 }}
+                  className="relative shrink-0 grow-0 basis-[80%] px-2 sm:basis-[55%] md:basis-[40%] lg:basis-[30%] xl:basis-[26%]"
+                >
+                  <div className="group relative aspect-[3/4] overflow-hidden rounded-2xl border border-[var(--color-line)] bg-[var(--color-bg-soft)]/40 shadow-sm">
+                    <Image
+                      src={asset(item.src)}
+                      alt={item.alt ?? item.title}
+                      fill
+                      sizes="(max-width: 640px) 80vw, (max-width: 1024px) 40vw, 30vw"
+                      className="object-cover transition-transform duration-500 group-hover:scale-[1.04]"
+                    />
+                    <figcaption className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-[var(--color-ink)]/85 via-[var(--color-ink)]/30 to-transparent p-4 text-white">
+                      <p className="text-[10px] uppercase tracking-[0.2em] text-white/70">
+                        {LABELS[item.category]}
+                      </p>
+                      <p className="mt-1 font-serif text-base">{item.title}</p>
+                    </figcaption>
+                  </div>
+                </motion.figure>
+              ))}
+            </div>
+          </div>
+
+          <CarouselButton direction="prev" onClick={scrollPrev} />
+          <CarouselButton direction="next" onClick={scrollNext} />
+        </div>
+
+        <Container>
+          <div className="mt-8 flex items-center justify-center gap-2">
+            {scrollSnaps.map((_, i) => (
+              <button
+                key={i}
+                type="button"
+                onClick={() => scrollTo(i)}
+                aria-label={`Aller à l'image ${i + 1}`}
+                className={`h-1.5 rounded-full transition-all ${
+                  i === selectedIndex
+                    ? "w-8 bg-[var(--color-ink)]"
+                    : "w-1.5 bg-[var(--color-ink)]/25 hover:bg-[var(--color-ink)]/45"
+                }`}
+              />
+            ))}
+          </div>
+        </Container>
+      </div>
     </section>
   );
 }
 
-function labelFor(c: Category) {
-  return {
-    nude: "Nude",
-    color: "Couleur",
-    art: "Nail art",
-    long: "Rallongement",
-  }[c];
+function CarouselButton({
+  direction,
+  onClick,
+}: {
+  direction: "prev" | "next";
+  onClick: () => void;
+}) {
+  const isPrev = direction === "prev";
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-label={isPrev ? "Image précédente" : "Image suivante"}
+      className={`absolute top-1/2 z-10 hidden h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full border border-[var(--color-line)] bg-[var(--color-bg)]/90 text-[var(--color-ink)] shadow-md backdrop-blur transition-all hover:bg-[var(--color-bg)] hover:scale-105 md:flex ${
+        isPrev ? "left-4 lg:left-8" : "right-4 lg:right-8"
+      }`}
+    >
+      <svg
+        width="18"
+        height="18"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        className={isPrev ? "" : "rotate-180"}
+        aria-hidden
+      >
+        <path d="M19 12H5M12 19l-7-7 7-7" />
+      </svg>
+    </button>
+  );
 }
