@@ -32,6 +32,9 @@ export function Hero() {
             transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1], delay: 0.05 }}
             className="font-serif text-5xl leading-[0.98] tracking-tight text-[var(--color-ink)] sm:text-6xl md:text-7xl lg:text-[5.5rem]"
           >
+            <span className="block text-2xl md:text-3xl lg:text-4xl font-normal not-italic mb-3 text-[var(--color-accent)]">
+              Prothésiste ongulaire à Lyon 6
+            </span>
             Des ongles
             <br />
             <span className="italic text-[var(--color-accent)]">durables</span>,
