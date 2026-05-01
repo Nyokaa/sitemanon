@@ -21,6 +21,7 @@ const ITEMS: Item[] = [
   { id: "n1", category: "nude", title: "Nude amande long", src: "/images/gallery/nude-1.png" },
   { id: "n2", category: "nude", title: "Ombré rosé naturel", src: "/images/gallery/nudes-rose.png" },
   { id: "n3", category: "nude", title: "Rallongement nude", src: "/images/gallery/long2.png" },
+  { id: "n4", category: "nude", title: "Nude délicat", src: "/images/gallery/nude7.png" },
 
   { id: "c1", category: "color", title: "Écaille caramel & or", src: "/images/gallery/couleurs1.png" },
   { id: "c2", category: "color", title: "Ombré pêche & fleurs séchées", src: "/images/gallery/couleurs2.png" },
