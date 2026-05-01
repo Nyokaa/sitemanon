@@ -43,7 +43,8 @@ export default function MentionsLegales() {
                 Hébergement
               </h2>
               <p className="mt-2 leading-relaxed">
-                À compléter (nom et adresse de l'hébergeur).
+                  Hébergeur : GitHub, Inc.<br />
+                  88 Colin P Kelly Jr St, San Francisco, CA 94107, États-Unis
               </p>
             </section>
 
