@@ -15,15 +15,16 @@ type Item = {
   category: Category;
   title: string;
   src: string;
+  alt?: string;
 };
 
 const ITEMS: Item[] = [
-  { id: "n1", category: "nude", title: "Nude amande long", src: "/images/gallery/nude-1.png" },
+  { id: "n1", category: "nude", title: "Nude amande long", alt: "Nude amande long — pose semi-permanente Lyon 6", src: "/images/gallery/nude-1.png" },
   { id: "n2", category: "nude", title: "Ombré rosé naturel", src: "/images/gallery/nudes-rose.png" },
   { id: "n3", category: "nude", title: "Rallongement nude", src: "/images/gallery/long2.png" },
   { id: "n4", category: "nude", title: "Nude délicat", src: "/images/gallery/nude7.png" },
 
-  { id: "c1", category: "color", title: "Écaille caramel & or", src: "/images/gallery/couleurs1.png" },
+  { id: "c1", category: "color", title: "Écaille caramel & or", alt: "Manucure écaille caramel et feuilles d'or — studio Tête d'Or Lyon 6", src: "/images/gallery/couleurs1.png" },
   { id: "c2", category: "color", title: "Ombré pêche & fleurs séchées", src: "/images/gallery/couleurs2.png" },
   { id: "c3", category: "color", title: "French jaune pailleté", src: "/images/gallery/couleurs3.png" },
 
@@ -35,7 +36,7 @@ const ITEMS: Item[] = [
   { id: "a4", category: "art", title: "Fleurs blanches & jaunes", src: "/images/gallery/nailart3.jpeg" },
   { id: "a5", category: "art", title: "Personnage Disney", src: "/images/gallery/nailart4.jpeg" },
   { id: "a6", category: "art", title: "Cinéma & couleurs", src: "/images/gallery/nailart5.jpeg" },
-  { id: "a7", category: "art", title: "Création signature", src: "/images/gallery/nailart6.jpeg" },
+  { id: "a7", category: "art", title: "Création signature", alt: "Création nail art signature — prothésiste ongulaire Lyon 6", src: "/images/gallery/nailart6.jpeg" },
 ];
 
 const FILTERS: { id: Category | "all"; label: string }[] = [
@@ -104,7 +105,7 @@ export function Gallery() {
               >
                 <Image
                   src={asset(item.src)}
-                  alt={item.title}
+                  alt={item.alt ?? item.title}
                   fill
                   sizes="(max-width: 768px) 50vw, 25vw"
                   className="object-cover transition-transform duration-500 group-hover:scale-[1.04]"
