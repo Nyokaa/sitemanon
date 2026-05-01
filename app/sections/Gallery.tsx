@@ -1,8 +1,9 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import useEmblaCarousel from "embla-carousel-react";
+import Autoplay from "embla-carousel-autoplay";
 import { motion } from "framer-motion";
 import { Container } from "@/app/components/Container";
 import { SectionHeader } from "@/app/components/SectionHeader";
@@ -57,12 +58,18 @@ const LABELS: Record<Category, string> = {
 
 export function Gallery() {
   const [filter, setFilter] = useState<Category | "all">("all");
-  const [emblaRef, emblaApi] = useEmblaCarousel({
-    loop: true,
-    align: "start",
-    skipSnaps: false,
-    dragFree: false,
-  });
+  const autoplay = useRef(
+    Autoplay({
+      delay: 4500,
+      stopOnInteraction: false,
+      stopOnMouseEnter: true,
+      stopOnFocusIn: true,
+    })
+  );
+  const [emblaRef, emblaApi] = useEmblaCarousel(
+    { loop: true, align: "start", skipSnaps: false, dragFree: false },
+    [autoplay.current]
+  );
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [scrollSnaps, setScrollSnaps] = useState<number[]>([]);
 
@@ -146,14 +153,14 @@ export function Gallery() {
                   initial={{ opacity: 0.4 }}
                   animate={{ opacity: 1 }}
                   transition={{ duration: 0.4 }}
-                  className="relative shrink-0 grow-0 basis-[80%] px-2 sm:basis-[55%] md:basis-[40%] lg:basis-[30%] xl:basis-[26%]"
+                  className="relative shrink-0 grow-0 basis-[65%] px-2.5 sm:basis-[42%] md:basis-[32%] lg:basis-[24%] xl:basis-[20%]"
                 >
                   <div className="group relative aspect-[3/4] overflow-hidden rounded-2xl border border-[var(--color-line)] bg-[var(--color-bg-soft)]/40 shadow-sm">
                     <Image
                       src={asset(item.src)}
                       alt={item.alt ?? item.title}
                       fill
-                      sizes="(max-width: 640px) 80vw, (max-width: 1024px) 40vw, 30vw"
+                      sizes="(max-width: 640px) 65vw, (max-width: 1024px) 32vw, 22vw"
                       className="object-cover transition-transform duration-500 group-hover:scale-[1.04]"
                     />
                     <figcaption className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-[var(--color-ink)]/85 via-[var(--color-ink)]/30 to-transparent p-4 text-white">
