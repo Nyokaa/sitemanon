@@ -35,18 +35,6 @@ const svg = `
   <!-- value props -->
   <text x="82" y="400" fill="#ebe2d4" font-family="'Inter', system-ui, sans-serif" font-size="22" letter-spacing="0" opacity="0.85">Diagnostic personnalisé · Hygiène irréprochable · Tenue jusqu'à 4 semaines</text>
 
-  <!-- decorative nails illustration on the right -->
-  <g transform="translate(780, 380) rotate(-8)" opacity="0.85">
-    <rect x="0"   y="40"  width="34" height="170" rx="16" fill="url(#nail)"/>
-    <rect x="46"  y="0"   width="36" height="210" rx="17" fill="url(#nail)"/>
-    <rect x="94"  y="-20" width="38" height="230" rx="18" fill="url(#nail)"/>
-    <rect x="144" y="0"   width="36" height="210" rx="17" fill="url(#nail)"/>
-    <!-- gold flake accents -->
-    <circle cx="115" cy="60" r="3" fill="#d4a373" opacity="0.95"/>
-    <circle cx="120" cy="80" r="2" fill="#d4a373" opacity="0.85"/>
-    <circle cx="60"  cy="90" r="2.5" fill="#d4a373" opacity="0.85"/>
-  </g>
-
   <!-- footer -->
   <line x1="80" y1="560" x2="160" y2="560" stroke="#d18b6f" stroke-width="1.5" stroke-linecap="round"/>
   <text x="80" y="540" fill="#d18b6f" font-family="'Inter', system-ui, sans-serif" font-size="16" letter-spacing="5" font-weight="500">RÉSERVATION 24H/24 SUR PLANITY</text>
