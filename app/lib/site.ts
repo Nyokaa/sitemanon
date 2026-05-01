@@ -116,23 +116,23 @@ export const FAQ = [
   },
   {
     q: "Combien de temps tient une pose ?",
-    a: "Le semi-permanent tient en moyenne 4 semaines. Le gel sur ongles naturels et le rallongement tiennent également jusqu'à 4 semaines, avec un remplissage recommandé pour préserver la qualité.",
+    a: "Une pose semi-permanente tient jusqu'à 4 semaines. Les poses gel et rallongements tiennent 3 à 4 semaines, avec un remplissage recommandé toutes les 3 à 4 semaines pour entretenir le résultat.",
   },
   {
     q: "Faut-il déposer chez vous si j'ai déjà du gel ?",
-    a: "Idéalement oui, pour évaluer l'état de l'ongle naturel. La dépose gel est facturée 30 €, le semi-permanent 20 €. Cela permet de repartir sur une base saine.",
+    a: "Oui, si vous portez déjà du gel d'un autre professionnel, je préfère effectuer la dépose moi-même pour garantir la santé de l'ongle et la qualité de la nouvelle pose. Le tarif de dépose est précisé dans la grille des prestations.",
   },
   {
     q: "Où se trouve le studio ?",
-    a: "Au 12 avenue de Grande-Bretagne, Lyon 6, à deux pas du Parc de la Tête d'Or. Studio privé, calme, accessible facilement en transports.",
+    a: "Le studio est situé au 12 avenue de Grande-Bretagne, 69006 Lyon, à deux pas du Parc de la Tête d'Or. Accès facile en transports en commun et stationnement à proximité.",
   },
   {
     q: "Comment réserver ?",
-    a: "Toute la prise de rendez-vous se fait en ligne sur Planity, 24h/24. Vous voyez les créneaux disponibles en temps réel.",
+    a: "La réservation se fait en ligne 24h/24 sur Planity ou par téléphone au 06 81 80 59 56.",
   },
   {
     q: "Quels moyens de paiement acceptez-vous ?",
-    a: "Espèces et carte bancaire. L'acompte éventuel est précisé au moment de la réservation.",
+    a: "Le studio accepte les paiements en espèces et par carte bancaire.",
   },
 ];
 
