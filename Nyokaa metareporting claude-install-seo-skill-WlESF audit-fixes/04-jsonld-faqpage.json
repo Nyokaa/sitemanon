@@ -1,0 +1,56 @@
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "@id": "https://manonjeanpert.com/#faq",
+  "inLanguage": "fr-FR",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Comment se déroule un premier rendez-vous ?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "On commence toujours par un diagnostic ongulaire (30 min, 10 € déduits de la prestation) : on parle de votre mode de vie, de vos contraintes et on choisit ensemble la technique la plus adaptée. Aucune pose standardisée — tout est sur-mesure."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Combien de temps tient une pose ?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Une pose semi-permanente tient jusqu'à 4 semaines. Les poses gel et rallongements tiennent 3 à 4 semaines, avec un remplissage recommandé toutes les 3 à 4 semaines pour entretenir le résultat."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Faut-il déposer chez vous si j'ai déjà du gel ?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Oui, si vous portez déjà du gel d'un autre professionnel, je préfère effectuer la dépose moi-même pour garantir la santé de l'ongle et la qualité de la nouvelle pose. Le tarif de dépose est précisé dans la grille des prestations."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Où se trouve le studio ?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Le studio est situé au 12 avenue de Grande-Bretagne, 69006 Lyon, à deux pas du Parc de la Tête d'Or. Accès facile en transports en commun et stationnement à proximité."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Comment réserver ?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "La réservation se fait en ligne 24h/24 sur Planity (planity.com/manon-jeanpert-prothesiste-ongulaire-69006-lyon) ou par téléphone au 06 81 80 59 56."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Quels moyens de paiement acceptez-vous ?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Le studio accepte les paiements en espèces et par carte bancaire."
+      }
+    }
+  ]
+}

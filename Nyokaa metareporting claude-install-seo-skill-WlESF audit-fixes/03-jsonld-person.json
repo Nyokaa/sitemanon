@@ -1,0 +1,27 @@
+{
+  "@context": "https://schema.org",
+  "@type": "Person",
+  "@id": "https://manonjeanpert.com/#manon",
+  "name": "Manon Jeanpert",
+  "givenName": "Manon",
+  "familyName": "Jeanpert",
+  "jobTitle": "Prothésiste ongulaire",
+  "description": "Prothésiste ongulaire à Lyon 6, fondatrice du studio Manon Jeanpert. Approche basée sur le diagnostic, manucure russe, gel et nail art sur-mesure.",
+  "image": "https://manonjeanpert.com/images/portrait.jpeg",
+  "url": "https://manonjeanpert.com/",
+  "worksFor": {
+    "@id": "https://manonjeanpert.com/#business"
+  },
+  "knowsAbout": [
+    "Pose semi-permanente",
+    "Gel sur ongles naturels",
+    "Manucure russe",
+    "Nail art",
+    "Rallongement gel",
+    "Diagnostic ongulaire"
+  ],
+  "knowsLanguage": "fr-FR",
+  "sameAs": [
+    "https://www.instagram.com/manonjeanpert/"
+  ]
+}
