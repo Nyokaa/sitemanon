@@ -24,7 +24,7 @@ export const metadata: Metadata = {
     template: "%s · Manon Jeanpert",
   },
   description:
-    "Prothésiste ongulaire à Lyon 6, à deux pas du Parc de la Tête d'Or. Pose semi-permanent, gel, rallongement et nail art sur-mesure dans un studio privé. Diagnostic personnalisé et hygiène irréprochable.",
+    "Prothésiste ongulaire à Lyon 6, près du Parc de la Tête d'Or. Pose semi-permanent, gel, rallongement et nail art sur-mesure. Diagnostic personnalisé.",
   keywords: [
     "prothésiste ongulaire Lyon 6",
     "manucure Lyon 6",
@@ -36,17 +36,35 @@ export const metadata: Metadata = {
     "Manon Jeanpert",
   ],
   authors: [{ name: "Manon Jeanpert" }],
+  alternates: { canonical: "/" },
   openGraph: {
     type: "website",
     locale: "fr_FR",
-    url: SITE_URL,
+    url: "/",
     siteName: "Manon Jeanpert",
     title: "Manon Jeanpert — Prothésiste ongulaire à Lyon 6",
     description:
       "Studio privé à Lyon 6. Diagnostic personnalisé, pose durable, hygiène irréprochable. Réservation en ligne sur Planity.",
+    images: [
+      {
+        url: "/og.jpg",
+        width: 1200,
+        height: 630,
+        alt: "Manon Jeanpert — Prothésiste ongulaire à Lyon 6",
+      },
+    ],
   },
-  alternates: { canonical: SITE_URL },
-  icons: { icon: "/favicon.ico" },
+  twitter: {
+    card: "summary_large_image",
+    title: "Manon Jeanpert — Prothésiste ongulaire à Lyon 6",
+    description:
+      "Studio privé à Lyon 6. Diagnostic personnalisé, pose durable, hygiène irréprochable.",
+    images: ["/og.jpg"],
+  },
+  icons: {
+    icon: "/favicon.ico",
+    apple: "/apple-touch-icon.png",
+  },
 };
 
 export const viewport: Viewport = {
