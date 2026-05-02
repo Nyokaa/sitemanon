@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Fraunces, Inter } from "next/font/google";
 import { Analytics } from "./components/Analytics";
+import { WhatsAppButton } from "./components/WhatsAppButton";
 import "./globals.css";
 
 const fraunces = Fraunces({
@@ -85,6 +86,7 @@ export default function RootLayout({
     <html lang="fr" className={`${fraunces.variable} ${inter.variable}`}>
       <body>
         {children}
+        <WhatsAppButton />
         <Analytics />
       </body>
     </html>

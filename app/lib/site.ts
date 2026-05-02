@@ -15,6 +15,8 @@ export const SITE = {
   },
   planityUrl:
     "https://www.planity.com/manon-jeanpert-prothesiste-ongulaire-69006-lyon",
+  whatsappNumber: "33681805956",
+  whatsappMessage: "Bonjour Manon, j'aurais une question avant de réserver.",
   googleBusinessUrl:
     "https://www.google.com/search?q=Manon+Jeanpert+Proth%C3%A9siste+ongulaire+Lyon+6",
   instagramUrl: "https://www.instagram.com/manonjeanpert/",

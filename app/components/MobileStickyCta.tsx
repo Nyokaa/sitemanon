@@ -26,7 +26,7 @@ export function MobileStickyCta() {
           animate={{ y: 0, opacity: 1 }}
           exit={{ y: 80, opacity: 0 }}
           transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-          className="fixed inset-x-3 bottom-3 z-40 lg:hidden"
+          className="fixed bottom-3 left-20 right-3 z-40 lg:hidden"
         >
           <a
             href={SITE.planityUrl}
