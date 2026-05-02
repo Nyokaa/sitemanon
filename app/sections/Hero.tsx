@@ -83,18 +83,23 @@ export function Hero() {
             <GoogleRating />
           </motion.div>
 
-          <motion.div
+          <motion.ul
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.8, delay: 0.4 }}
-            className="mt-12 flex flex-wrap items-center gap-x-8 gap-y-3 text-xs uppercase tracking-[0.18em] text-[var(--color-ink)]/60"
+            className="mt-10 grid gap-2.5 text-[11px] uppercase tracking-[0.2em] text-[var(--color-ink)]/65 sm:mt-12 sm:flex sm:flex-wrap sm:items-center sm:gap-x-7 sm:gap-y-3 sm:text-xs"
           >
-            <span>Diagnostic personnalisé</span>
-            <span className="h-1 w-1 rounded-full bg-[var(--color-accent)]" />
-            <span>Hygiène irréprochable</span>
-            <span className="h-1 w-1 rounded-full bg-[var(--color-accent)]" />
-            <span>Tenue 3 — 4 semaines</span>
-          </motion.div>
+            {[
+              "Diagnostic personnalisé",
+              "Hygiène irréprochable",
+              "Tenue 3 — 4 semaines",
+            ].map((label) => (
+              <li key={label} className="flex items-center gap-2.5">
+                <span className="h-1 w-1 shrink-0 rounded-full bg-[var(--color-accent)]" />
+                <span>{label}</span>
+              </li>
+            ))}
+          </motion.ul>
         </div>
 
         <motion.div
