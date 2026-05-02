@@ -21,24 +21,24 @@ type Item = {
 };
 
 const ITEMS: Item[] = [
-  { id: "n1", category: "nude", title: "Nude amande long", alt: "Nude amande long — pose semi-permanente Lyon 6", src: "/images/gallery/nude-1.png" },
-  { id: "n2", category: "nude", title: "Ombré rosé naturel", src: "/images/gallery/nudes-rose.png" },
+  { id: "n1", category: "nude", title: "Nude semi-permanent", alt: "Nude amande long — pose semi-permanente Lyon 6", src: "/images/gallery/nude-1.png" },
+  { id: "n2", category: "nude", title: "BabyColor Rose", src: "/images/gallery/nudes-rose.png" },
   { id: "n3", category: "nude", title: "Rallongement nude", src: "/images/gallery/long2.png" },
-  { id: "n4", category: "nude", title: "Nude délicat", src: "/images/gallery/nude7.png" },
+  { id: "n4", category: "nude", title: "Nude & Fleur 3D", src: "/images/gallery/nude7.png" },
 
-  { id: "c1", category: "color", title: "Écaille caramel & or", alt: "Manucure écaille caramel et feuilles d'or — studio Tête d'Or Lyon 6", src: "/images/gallery/couleurs1.png" },
-  { id: "c2", category: "color", title: "Ombré pêche & fleurs séchées", src: "/images/gallery/couleurs2.png" },
+  { id: "c1", category: "color", title: "Tortoise", alt: "Manucure écaille caramel et feuilles d'or — studio Tête d'Or Lyon 6", src: "/images/gallery/couleurs1.png" },
+  { id: "c2", category: "color", title: "BabyColor Ombré pêche & fleurs séchées", src: "/images/gallery/couleurs2.png" },
   { id: "c3", category: "color", title: "French jaune pailleté", src: "/images/gallery/couleurs3.png" },
 
-  { id: "l1", category: "long", title: "Marbré rose long", src: "/images/gallery/couleurs4.jpeg" },
+  { id: "l1", category: "long", title: "Rallongement Nail Art Fleur séchée", src: "/images/gallery/couleurs4.jpeg" },
 
   { id: "a1", category: "art", title: "Fleurs roses french", src: "/images/gallery/nailart1.jpeg" },
   { id: "a2", category: "art", title: "Nail art floral", src: "/images/gallery/nailart1.png" },
   { id: "a3", category: "art", title: "Fleurs séchées coral", src: "/images/gallery/nailart2.jpeg" },
-  { id: "a4", category: "art", title: "Fleurs blanches & jaunes", src: "/images/gallery/nailart3.jpeg" },
+  { id: "a4", category: "art", title: "Baby Color jaunes & Fleurs blanches", src: "/images/gallery/nailart3.jpeg" },
   { id: "a5", category: "art", title: "Personnage Disney", src: "/images/gallery/nailart4.jpeg" },
-  { id: "a6", category: "art", title: "Cinéma & couleurs", src: "/images/gallery/nailart5.jpeg" },
-  { id: "a7", category: "art", title: "Création signature", alt: "Création nail art signature — prothésiste ongulaire Lyon 6", src: "/images/gallery/nailart6.jpeg" },
+  { id: "a6", category: "art", title: "Personnage Disney", src: "/images/gallery/nailart5.jpeg" },
+  { id: "a7", category: "art", title: "Personnage Disney", alt: "Création nail art signature — prothésiste ongulaire Lyon 6", src: "/images/gallery/nailart6.jpeg" },
 ];
 
 const FILTERS: { id: Category | "all"; label: string }[] = [
