@@ -65,7 +65,7 @@ export function Header() {
           >
             {SITE.phone}
           </a>
-          <BookingButton size="sm" />
+          <BookingButton size="sm" source="header" />
         </div>
 
         <button
@@ -109,7 +109,7 @@ export function Header() {
                 >
                   {SITE.phone}
                 </a>
-                <BookingButton size="md" className="w-full" />
+                <BookingButton size="md" className="w-full" source="mobile_menu" />
               </div>
             </nav>
           </motion.div>

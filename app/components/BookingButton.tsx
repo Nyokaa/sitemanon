@@ -1,9 +1,13 @@
+"use client";
+
 import { SITE } from "@/app/lib/site";
+import { trackEvent } from "@/app/lib/analytics";
 
 type Props = {
   className?: string;
   variant?: "primary" | "ghost" | "accent";
   size?: "sm" | "md" | "lg";
+  source?: string;
   children?: React.ReactNode;
 };
 
@@ -29,6 +33,7 @@ export function BookingButton({
   className = "",
   variant = "primary",
   size = "md",
+  source = "default",
   children = "Prendre rendez-vous",
 }: Props) {
   return (
@@ -36,6 +41,7 @@ export function BookingButton({
       href={SITE.planityUrl}
       target="_blank"
       rel="noopener noreferrer"
+      onClick={() => trackEvent("booking_click", { source })}
       className={`${base} ${variants[variant]} ${sizes[size]} ${className}`}
     >
       <span>{children}</span>

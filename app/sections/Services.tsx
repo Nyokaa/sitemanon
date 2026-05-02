@@ -20,7 +20,7 @@ export function Services() {
             intro="Toutes les poses commencent par un diagnostic. Le tarif du diagnostic est déduit de la prestation réalisée."
           />
           <div className="hidden md:block">
-            <BookingButton variant="primary" size="md" />
+            <BookingButton variant="primary" size="md" source="services_top" />
           </div>
         </div>
 
@@ -63,6 +63,7 @@ export function Services() {
               <BookingButton
                 variant="ghost"
                 size="sm"
+                source={`service_${s.id}`}
                 className="mt-6 w-full justify-center"
               >
                 Prendre rendez-vous
@@ -72,7 +73,7 @@ export function Services() {
         </ul>
 
         <div className="mt-12 md:hidden">
-          <BookingButton variant="primary" size="lg" className="w-full" />
+          <BookingButton variant="primary" size="lg" className="w-full" source="services_bottom" />
         </div>
       </Container>
     </section>

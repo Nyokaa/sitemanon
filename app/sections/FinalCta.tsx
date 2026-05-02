@@ -31,7 +31,7 @@ export function FinalCta() {
           </p>
 
           <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
-            <BookingButton variant="accent" size="lg" />
+            <BookingButton variant="accent" size="lg" source="final_cta" />
             <a
               href={`tel:${SITE.phoneE164}`}
               className="inline-flex items-center gap-2 rounded-full border border-[var(--color-bg-soft)]/30 px-8 py-4 text-sm text-[var(--color-bg-soft)] transition-colors hover:border-[var(--color-bg-soft)] hover:bg-[var(--color-bg-soft)]/5"

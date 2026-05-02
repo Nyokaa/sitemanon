@@ -1,4 +1,5 @@
 import { Container } from "@/app/components/Container";
+import { CookieResetLink } from "@/app/components/CookieResetLink";
 import { SITE } from "@/app/lib/site";
 
 export function Footer() {
@@ -83,9 +84,12 @@ export function Footer() {
 
       <Container className="mt-12 flex flex-col items-start justify-between gap-3 border-t border-[var(--color-line)] pt-6 text-xs text-[var(--color-ink-soft)]/70 md:flex-row md:items-center">
         <p>© {new Date().getFullYear()} Manon Jeanpert · Tous droits réservés</p>
-        <a href="/mentions-legales" className="hover:text-[var(--color-ink)]">
-          Mentions légales
-        </a>
+        <div className="flex items-center gap-5">
+          <CookieResetLink />
+          <a href="/mentions-legales" className="hover:text-[var(--color-ink)]">
+            Mentions légales
+          </a>
+        </div>
       </Container>
     </footer>
   );

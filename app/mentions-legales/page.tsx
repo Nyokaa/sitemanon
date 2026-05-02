@@ -63,9 +63,29 @@ export default function MentionsLegales() {
                 Données personnelles
               </h2>
               <p className="mt-2 leading-relaxed">
-                Aucune donnée n'est collectée directement via ce site. Les
-                réservations sont gérées par la plateforme Planity, soumise à sa
-                propre politique de confidentialité.
+                Aucune donnée n&apos;est collectée par formulaire sur ce site.
+                Les réservations sont gérées par la plateforme Planity, soumise
+                à sa propre politique de confidentialité.
+              </p>
+            </section>
+
+            <section>
+              <h2 className="font-serif text-2xl text-[var(--color-ink)]">
+                Cookies & mesure d&apos;audience
+              </h2>
+              <p className="mt-2 leading-relaxed">
+                Ce site utilise <strong>Google Analytics 4</strong> pour mesurer
+                la fréquentation et améliorer l&apos;expérience. Les données
+                sont anonymisées (IP tronquée) et conservées 14 mois maximum.
+                Aucune donnée n&apos;est partagée avec des tiers à des fins
+                publicitaires.
+              </p>
+              <p className="mt-3 leading-relaxed">
+                Aucun cookie analytique n&apos;est déposé tant que vous
+                n&apos;avez pas donné votre consentement explicite via le
+                bandeau qui s&apos;affiche à votre première visite. Vous pouvez
+                à tout moment revenir sur votre choix via le lien{" "}
+                <em>Gérer les cookies</em> en bas de page.
               </p>
             </section>
           </div>

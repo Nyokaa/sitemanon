@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { SITE } from "@/app/lib/site";
+import { trackEvent } from "@/app/lib/analytics";
 
 export function MobileStickyCta() {
   const [visible, setVisible] = useState(false);
@@ -31,6 +32,7 @@ export function MobileStickyCta() {
             href={SITE.planityUrl}
             target="_blank"
             rel="noopener noreferrer"
+            onClick={() => trackEvent("booking_click", { source: "mobile_sticky" })}
             className="flex items-center justify-center gap-2 rounded-full bg-[var(--color-ink)] px-6 py-4 text-sm font-medium tracking-wide text-[var(--color-bg-soft)] shadow-[0_15px_30px_-10px_rgba(44,58,46,0.55)] transition-all active:scale-[0.98]"
           >
             <span>Prendre rendez-vous</span>

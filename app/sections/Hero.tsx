@@ -62,7 +62,7 @@ export function Hero() {
             transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1], delay: 0.25 }}
             className="mt-10 flex flex-col items-start gap-4 sm:flex-row sm:items-center"
           >
-            <BookingButton size="lg" />
+            <BookingButton size="lg" source="hero" />
             <a
               href="#prestations"
               className="group inline-flex items-center gap-2 px-2 py-2 text-sm font-medium text-[var(--color-ink)] underline-offset-4 hover:underline"

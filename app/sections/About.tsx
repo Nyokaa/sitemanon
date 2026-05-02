@@ -75,7 +75,7 @@ export function About() {
 
           <Reveal delay={0.25}>
             <div className="mt-10">
-              <BookingButton size="md" />
+              <BookingButton size="md" source="about" />
             </div>
           </Reveal>
         </div>
