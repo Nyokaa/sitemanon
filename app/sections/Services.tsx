@@ -54,7 +54,7 @@ export function Services() {
                 } ${isExpanded ? "col-span-2 md:col-span-1" : ""}`}
               >
                 {s.highlight ? (
-                  <span className="absolute right-3 top-3 z-10 rounded-full bg-[var(--color-accent)]/15 px-2.5 py-0.5 text-[9px] uppercase tracking-[0.16em] text-[var(--color-accent)] md:right-5 md:top-5 md:px-3 md:py-1 md:text-[10px] md:tracking-[0.18em]">
+                  <span className="absolute right-5 top-5 z-10 hidden rounded-full bg-[var(--color-accent)]/15 px-3 py-1 text-[10px] uppercase tracking-[0.18em] text-[var(--color-accent)] md:block">
                     Populaire
                   </span>
                 ) : null}
@@ -68,6 +68,12 @@ export function Services() {
                   }
                   className="flex w-full flex-col items-start p-4 text-left md:p-0 md:pointer-events-none"
                 >
+                  {s.highlight ? (
+                    <span className="mb-2 inline-block rounded-full bg-[var(--color-accent)]/15 px-2 py-0.5 text-[9px] uppercase tracking-[0.16em] text-[var(--color-accent)] md:hidden">
+                      Populaire
+                    </span>
+                  ) : null}
+
                   <h3 className="font-serif text-base leading-tight text-[var(--color-ink)] md:text-2xl">
                     {s.name}
                   </h3>
