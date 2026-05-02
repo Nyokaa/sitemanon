@@ -44,7 +44,7 @@ export function Footer() {
                 rel="noopener noreferrer"
                 className="hover:text-[var(--color-ink)]"
               >
-                Réserver sur Planity
+                Prendre rendez-vous
               </a>
             </li>
             <li>

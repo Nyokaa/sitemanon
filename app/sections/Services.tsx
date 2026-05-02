@@ -65,7 +65,7 @@ export function Services() {
                 size="sm"
                 className="mt-6 w-full justify-center"
               >
-                Réserver
+                Prendre rendez-vous
               </BookingButton>
             </motion.li>
           ))}

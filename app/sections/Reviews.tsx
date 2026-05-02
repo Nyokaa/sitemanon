@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import { Container } from "@/app/components/Container";
 import { SectionHeader } from "@/app/components/SectionHeader";
+import { GoogleRating } from "@/app/components/GoogleRating";
 import { SITE } from "@/app/lib/site";
 
 const REVIEWS = [
@@ -39,14 +40,17 @@ export function Reviews() {
             title="Un travail recommandé par celles qui le portent."
             intro="Quelques retours de mes clientes. Vous trouverez tous les avis sur ma fiche Google."
           />
-          <a
-            href={SITE.googleBusinessUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="hidden text-sm text-[var(--color-ink)]/70 underline-offset-4 hover:text-[var(--color-ink)] hover:underline md:inline"
-          >
-            Voir tous les avis Google →
-          </a>
+          <div className="flex flex-col gap-3 md:items-end">
+            <GoogleRating />
+            <a
+              href={SITE.googleBusinessUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-sm text-[var(--color-ink)]/70 underline-offset-4 hover:text-[var(--color-ink)] hover:underline"
+            >
+              Voir tous les avis Google →
+            </a>
+          </div>
         </div>
 
         <ul className="mt-14 grid gap-5 md:grid-cols-3">

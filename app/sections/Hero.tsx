@@ -4,6 +4,7 @@ import Image from "next/image";
 import { motion } from "framer-motion";
 import { BookingButton } from "@/app/components/BookingButton";
 import { Container } from "@/app/components/Container";
+import { GoogleRating } from "@/app/components/GoogleRating";
 import { asset } from "@/app/lib/asset";
 
 export function Hero() {
@@ -71,6 +72,15 @@ export function Hero() {
                 <path d="M5 12h14M13 5l7 7-7 7" />
               </svg>
             </a>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1], delay: 0.35 }}
+            className="mt-6"
+          >
+            <GoogleRating />
           </motion.div>
 
           <motion.div

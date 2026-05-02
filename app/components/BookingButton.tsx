@@ -29,7 +29,7 @@ export function BookingButton({
   className = "",
   variant = "primary",
   size = "md",
-  children = "Réserver sur Planity",
+  children = "Prendre rendez-vous",
 }: Props) {
   return (
     <a
