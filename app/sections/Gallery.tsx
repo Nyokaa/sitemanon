@@ -31,9 +31,9 @@ const ITEMS: Item[] = [
   { id: "c3", category: "color", title: "French jaune pailleté", src: "/images/gallery/couleurs3.png" },
 
   { id: "l1", category: "long", title: "Rallongement Nail Art Fleur séchée", src: "/images/gallery/couleurs4.jpeg" },
-  { id: "l2", category: "long", title: "Rallongement gel Disney", src: "/images/gallery/gel rallongement Disney.png" },
+  { id: "l2", category: "long", title: "Rallongement gel Disney", src: "/images/gallery/gel-rallongement-disney.png" },
 
-  { id: "n5", category: "nude", title: "Pop it nude french gold", src: "/images/gallery/remplissage pop it nude french gold.png" },
+  { id: "n5", category: "nude", title: "Pop it nude french gold", src: "/images/gallery/remplissage-pop-it-nude-french-gold.png" },
 
   { id: "a1", category: "art", title: "Fleurs roses french", src: "/images/gallery/nailart1.jpeg" },
   { id: "a2", category: "art", title: "Nail art floral", src: "/images/gallery/nailart1.png" },
@@ -42,8 +42,8 @@ const ITEMS: Item[] = [
   { id: "a5", category: "art", title: "Personnage Disney", src: "/images/gallery/nailart4.jpeg" },
   { id: "a6", category: "art", title: "Personnage Disney", src: "/images/gallery/nailart5.jpeg" },
   { id: "a7", category: "art", title: "Personnage Disney", alt: "Création nail art signature — prothésiste ongulaire Lyon 6", src: "/images/gallery/nailart6.jpeg" },
-  { id: "a8", category: "art", title: "Chrome 3D semi-permanent", src: "/images/gallery/semi permanent chrome 3D.png" },
-  { id: "a9", category: "art", title: "Nail art feuille d'or", src: "/images/gallery/semi permanent nail art feuille d'or.jpeg" },
+  { id: "a8", category: "art", title: "Chrome 3D semi-permanent", src: "/images/gallery/semi-permanent-chrome-3d.png" },
+  { id: "a9", category: "art", title: "Nail art feuille d'or", src: "/images/gallery/semi-permanent-nail-art-feuille-dor.jpeg" },
 ];
 
 const FILTERS: { id: Category | "all"; label: string }[] = [
