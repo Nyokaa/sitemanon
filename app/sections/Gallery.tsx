@@ -44,6 +44,7 @@ const ITEMS: Item[] = [
   { id: "a7", category: "art", title: "Personnage Disney", alt: "Création nail art signature — prothésiste ongulaire Lyon 6", src: "/images/gallery/nailart6.jpeg" },
   { id: "a8", category: "art", title: "Chrome 3D semi-permanent", src: "/images/gallery/semi-permanent-chrome-3d.png" },
   { id: "a9", category: "art", title: "Nail art feuille d'or", src: "/images/gallery/semi-permanent-nail-art-feuille-dor.jpeg" },
+  { id: "a10", category: "art", title: "Remplissage pop it nail art", src: "/images/gallery/remplissage-popit-nail-art.jpeg" },
 ];
 
 const FILTERS: { id: Category | "all"; label: string }[] = [
