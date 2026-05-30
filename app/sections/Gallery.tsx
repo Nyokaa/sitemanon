@@ -34,6 +34,8 @@ const ITEMS: Item[] = [
   { id: "l2", category: "long", title: "Rallongement gel Disney", src: "/images/gallery/gel-rallongement-disney.png" },
 
   { id: "n5", category: "nude", title: "Pop it nude french gold", src: "/images/gallery/remplissage-pop-it-nude-french-gold.png" },
+  { id: "n6", category: "nude", title: "Pop it cateyes", src: "/images/gallery/remplissage-popit-cateyes.jpeg" },
+  { id: "n7", category: "nude", title: "French sur ongles naturels", src: "/images/gallery/remplissage-ongles-naturels-french.jpeg" },
 
   { id: "a1", category: "art", title: "Fleurs roses french", src: "/images/gallery/nailart1.jpeg" },
   { id: "a2", category: "art", title: "Nail art floral", src: "/images/gallery/nailart1.png" },
@@ -45,6 +47,8 @@ const ITEMS: Item[] = [
   { id: "a8", category: "art", title: "Chrome 3D semi-permanent", src: "/images/gallery/semi-permanent-chrome-3d.png" },
   { id: "a9", category: "art", title: "Nail art feuille d'or", src: "/images/gallery/semi-permanent-nail-art-feuille-dor.jpeg" },
   { id: "a10", category: "art", title: "Remplissage pop it nail art", src: "/images/gallery/remplissage-popit-nail-art.jpeg" },
+  { id: "a11", category: "art", title: "Pop it Baby Color jaune", src: "/images/gallery/remplissage-popit-baby-color-jaune.jpeg" },
+  { id: "a12", category: "art", title: "Pop it nail art", src: "/images/gallery/remplissage-popit-nail-art-2.jpeg" },
 ];
 
 const FILTERS: { id: Category | "all"; label: string }[] = [
