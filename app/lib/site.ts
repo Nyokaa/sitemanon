@@ -22,7 +22,7 @@ export const SITE = {
   instagramUrl: "https://www.instagram.com/manonjeanpert/",
   facebookUrl: "https://www.facebook.com/",
   googleRating: 5,
-  googleReviewCount: 39,
+  googleReviewCount: 44,
   googleReviewsUrl:
     "https://www.google.com/search?sca_esv=f746b67cbf3d13a5&q=Manon+Jeanpert+Proth%C3%A9siste+ongulaire+%C3%A0+Lyon+6+Avis&stick=H4sIAAAAAAAAAONgkxI2NzYxsbSwMLKwMDA1MzW2MDe22MDI-IrRwjcxLz9PwSs1Ma8gtahE4VHDZIWAovySjMMrizOLS1IV8vPSS3MSM4tSFQ4vUPCpBKo1U3AsyyxexEq2VgDdV8jkkAAAAA&rldimm=7344988288056538738&tbm=lcl",
   hours: [
