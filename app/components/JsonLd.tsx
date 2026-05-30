@@ -2,17 +2,15 @@ import { SITE, SERVICES, FAQ } from "@/app/lib/site";
 
 const SITE_URL = "https://manonjeanpert.com";
 const GBP_CID = "7344988288056538738";
-const GOOGLE_RATING = "5";
-const GOOGLE_REVIEW_COUNT = "39";
 
 export function JsonLd() {
   const business = {
     "@context": "https://schema.org",
-    "@type": "BeautySalon",
+    "@type": "NailSalon",
     "@id": `${SITE_URL}/#business`,
     name: SITE.name,
     description:
-      "Prothésiste ongulaire à Lyon 6. Studio privé, diagnostic personnalisé, pose durable et hygiène irréprochable.",
+      "Prothésiste ongulaire à Lyon 6, en studio privé près du Parc de la Tête d'Or. Pose semi-permanente, gel, nail art, rallongement.",
     url: SITE_URL,
     telephone: SITE.phoneE164,
     image: `${SITE_URL}/og.jpg`,
@@ -59,10 +57,26 @@ export function JsonLd() {
     ],
     aggregateRating: {
       "@type": "AggregateRating",
-      ratingValue: GOOGLE_RATING,
-      reviewCount: GOOGLE_REVIEW_COUNT,
+      ratingValue: String(SITE.googleRating),
+      reviewCount: String(SITE.googleReviewCount),
       bestRating: "5",
       worstRating: "1",
+    },
+    potentialAction: {
+      "@type": "ReserveAction",
+      target: {
+        "@type": "EntryPoint",
+        urlTemplate: SITE.planityUrl,
+        inLanguage: "fr-FR",
+        actionPlatform: [
+          "http://schema.org/DesktopWebPlatform",
+          "http://schema.org/MobileWebPlatform",
+        ],
+      },
+      result: {
+        "@type": "Reservation",
+        name: "Réservation prothésiste ongulaire",
+      },
     },
     review: [
       {
