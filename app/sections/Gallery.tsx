@@ -32,10 +32,15 @@ const ITEMS: Item[] = [
 
   { id: "l1", category: "long", title: "Rallongement Nail Art Fleur séchée", src: "/images/gallery/couleurs4.jpeg" },
   { id: "l2", category: "long", title: "Rallongement gel Disney", src: "/images/gallery/gel-rallongement-disney.png" },
+  { id: "l3", category: "long", title: "Rallongement gel pop it", src: "/images/gallery/gel-rallongement-popit.jpeg" },
+  { id: "l4", category: "long", title: "Rallongement gel pop it nail art", src: "/images/gallery/gel-rallongement-popit-nail-art.jpeg" },
 
   { id: "n5", category: "nude", title: "Pop it nude french gold", src: "/images/gallery/remplissage-pop-it-nude-french-gold.png" },
   { id: "n6", category: "nude", title: "Pop it cateyes", src: "/images/gallery/remplissage-popit-cateyes.jpeg" },
   { id: "n7", category: "nude", title: "French sur ongles naturels", src: "/images/gallery/remplissage-ongles-naturels-french.jpeg" },
+  { id: "n8", category: "nude", title: "Pop it French", src: "/images/gallery/remplissage-popit-french.jpeg" },
+  { id: "n9", category: "nude", title: "Remplissage gel", src: "/images/gallery/remplissage-gel.jpeg" },
+  { id: "n10", category: "nude", title: "Semi-permanent French", src: "/images/gallery/semi-permanent-french.jpeg" },
 
   { id: "a1", category: "art", title: "Fleurs roses french", src: "/images/gallery/nailart1.jpeg" },
   { id: "a2", category: "art", title: "Nail art floral", src: "/images/gallery/nailart1.png" },
@@ -49,6 +54,7 @@ const ITEMS: Item[] = [
   { id: "a10", category: "art", title: "Remplissage pop it nail art", src: "/images/gallery/remplissage-popit-nail-art.jpeg" },
   { id: "a11", category: "art", title: "Pop it Baby Color jaune", src: "/images/gallery/remplissage-popit-baby-color-jaune.jpeg" },
   { id: "a12", category: "art", title: "Pop it nail art", src: "/images/gallery/remplissage-popit-nail-art-2.jpeg" },
+  { id: "a13", category: "art", title: "Pop it nail art remplissage", src: "/images/gallery/remplissage-popit-nail-art-3.jpeg" },
 ];
 
 const FILTERS: { id: Category | "all"; label: string }[] = [
