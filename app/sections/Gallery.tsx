@@ -34,6 +34,8 @@ const ITEMS: Item[] = [
   { id: "l2", category: "long", title: "Rallongement gel Disney", src: "/images/gallery/gel-rallongement-disney.png" },
   { id: "l3", category: "long", title: "Rallongement gel pop it", src: "/images/gallery/gel-rallongement-popit.jpeg" },
   { id: "l4", category: "long", title: "Rallongement gel pop it nail art", src: "/images/gallery/gel-rallongement-popit-nail-art.jpeg" },
+  { id: "l5", category: "long", title: "Rallongement pop it nail art", src: "/images/gallery/rallongement-popit-nail-art.jpeg" },
+  { id: "l6", category: "long", title: "Rallongement pop it nail art", src: "/images/gallery/rallongement-popit-nail-art-3.jpeg" },
 
   { id: "n5", category: "nude", title: "Pop it nude french gold", src: "/images/gallery/remplissage-pop-it-nude-french-gold.png" },
   { id: "n6", category: "nude", title: "Pop it cateyes", src: "/images/gallery/remplissage-popit-cateyes.jpeg" },
@@ -41,6 +43,7 @@ const ITEMS: Item[] = [
   { id: "n8", category: "nude", title: "Pop it French", src: "/images/gallery/remplissage-popit-french.jpeg" },
   { id: "n9", category: "nude", title: "Remplissage gel", src: "/images/gallery/remplissage-gel.jpeg" },
   { id: "n10", category: "nude", title: "Semi-permanent French", src: "/images/gallery/semi-permanent-french.jpeg" },
+  { id: "n11", category: "nude", title: "Gel sur ongles naturels French", src: "/images/gallery/gel-ongles-naturels-french.jpeg" },
 
   { id: "a1", category: "art", title: "Fleurs roses french", src: "/images/gallery/nailart1.jpeg" },
   { id: "a2", category: "art", title: "Nail art floral", src: "/images/gallery/nailart1.png" },
