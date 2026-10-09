@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Candidature reçue · Formation en présentiel</title>
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+
+<!-- Meta Pixel : PageView + Lead, le Lead ne part que si le formulaire vient d'être envoyé -->
+<script>
+!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
+n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
+t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,
+document,'script','https://connect.facebook.net/en_US/fbevents.js');
+fbq('init', '1635263904032770');
+fbq('track', 'PageView');
+(function(){
+  var ok = false;
+  try { ok = sessionStorage.getItem('candidature_ok') === '1'; sessionStorage.removeItem('candidature_ok'); } catch(_) {}
+  if (ok) fbq('track', 'Lead', { content_name: 'Candidature formation présentiel', value: 150, currency: 'EUR' });
+})();
+</script>
+
+<style>
+:root{--ink:#2B1A21;--ground:#F6EEEA;--card:#FFFFFF;--line:#E2D2CC;--accent:#7A2E4A;--muted:#6E5A61;--pink:#E7BFCB;--soft:#E9DCD6}
+*{box-sizing:border-box}
+body{margin:0;background:var(--ground);color:var(--ink);font-family:'DM Sans',system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+.hero{background:var(--ink);color:var(--ground);text-align:center;padding:72px 20px 88px}
+.hero-inner{max-width:640px;margin:0 auto;display:flex;flex-direction:column;align-items:center;gap:18px}
+.check{width:64px;height:64px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center}
+.eyebrow{margin:0;font-size:13px;letter-spacing:.16em;text-transform:uppercase;color:var(--pink)}
+h1{margin:0;font-family:'Cormorant Garamond',Georgia,serif;font-weight:600;font-size:clamp(36px,7vw,58px);line-height:1.05}
+h1 em{font-weight:500}
+.hero p{margin:0;font-size:17px;line-height:1.6;color:var(--soft)}
+main{max-width:720px;margin:-48px auto 0;padding:0 16px 80px;display:flex;flex-direction:column;gap:20px}
+.card{background:var(--card);border-radius:20px;padding:28px;box-shadow:0 8px 30px rgba(43,26,33,.08)}
+h2{margin:0 0 18px;font-family:'Cormorant Garamond',Georgia,serif;font-size:30px;font-weight:600}
+ol{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:18px;counter-reset:s}
+ol li{display:grid;grid-template-columns:36px 1fr;gap:14px;align-items:start;font-size:15px;line-height:1.6;counter-increment:s}
+ol li::before{content:counter(s);width:36px;height:36px;border-radius:50%;border:1.5px solid var(--accent);color:var(--accent);font-weight:700;display:flex;align-items:center;justify-content:center}
+ol li strong{display:block;font-size:16px}
+.box{border:1.5px solid var(--line);border-radius:20px;padding:24px}
+.box h3{margin:0 0 10px;font-family:'Cormorant Garamond',Georgia,serif;font-size:26px;font-weight:600}
+.box ul{margin:0;padding-left:20px;font-size:15px;line-height:1.7}
+.tip{font-size:14px;color:var(--muted);text-align:center;line-height:1.6;margin:8px 0 0}
+.btn{display:inline-flex;align-items:center;justify-content:center;min-height:52px;padding:0 28px;border-radius:999px;background:var(--accent);color:#fff;text-decoration:none;font-weight:700;align-self:center}
+.btn:hover{background:#5A1F36}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="hero-inner">
+    <div class="check" aria-hidden="true">
+      <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+    </div>
+    <p class="eyebrow">Candidature reçue</p>
+    <h1>Merci, c'est bien<br><em>arrivé chez moi</em></h1>
+    <p>Je lis ta candidature personnellement. Si ton profil correspond à la formation, je te recontacte sous 48 h.</p>
+  </div>
+</header>
+
+<main>
+  <section class="card">
+    <h2>La suite</h2>
+    <ol>
+      <li><div><strong>Je lis ta candidature</strong>Je regarde ton niveau, tes attentes et les dates que tu as proposées pour composer un groupe homogène.</div></li>
+      <li><div><strong>Je te contacte sur WhatsApp</strong>Sous 48 h si ta candidature est retenue. Garde ton téléphone à portée de main et pense à vérifier tes demandes de messages.</div></li>
+      <li><div><strong>On fixe ta date et tu réserves ta place</strong>Le groupe est limité à 5 personnes : ta place est confirmée une fois le règlement de 150 € effectué.</div></li>
+    </ol>
+  </section>
+
+  <section class="box">
+    <h3>Pour le jour J, prépare déjà</h3>
+    <ul>
+      <li>Ta ponceuse et tes embouts</li>
+      <li>Ta lampe</li>
+      <li>Une main déposée (sans pose)</li>
+    </ul>
+  </section>
+
+  <p class="tip">Les produits sont fournis et tu t'entraînes directement sur moi, pas besoin de venir avec un modèle.</p>
+  <a class="btn" href="/">Retour au site</a>
+</main>
+
+</body>
+</html>
