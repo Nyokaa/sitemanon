@@ -5,6 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Candidature reçue · Formation en présentiel</title>
 <meta name="robots" content="noindex">
+<link rel="icon" href="/favicon.png" sizes="32x32" type="image/png">
+<link rel="icon" href="/apple-touch-icon.png" sizes="180x180" type="image/png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
@@ -21,7 +24,7 @@ fbq('track', 'PageView');
 (function(){
   var ok = false;
   try { ok = sessionStorage.getItem('candidature_ok') === '1'; sessionStorage.removeItem('candidature_ok'); } catch(_) {}
-  if (ok) fbq('track', 'Lead', { content_name: 'Candidature formation présentiel', value: 150, currency: 'EUR' });
+  if (ok) fbq('track', 'Lead', { content_name: 'Candidature formation présentiel' });
 })();
 </script>
 
