@@ -24,7 +24,7 @@ fbq('track', 'PageView');
 (function(){
   var ok = false;
   try { ok = sessionStorage.getItem('candidature_ok') === '1'; sessionStorage.removeItem('candidature_ok'); } catch(_) {}
-  if (ok) fbq('track', 'Lead', { content_name: 'Candidature formation présentiel' });
+  if (ok) fbq('track', 'Lead');
 })();
 </script>
 
