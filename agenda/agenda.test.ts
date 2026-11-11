@@ -158,7 +158,9 @@ function monter() {
   };
   vm.createContext(contexte);
   vm.runInContext(
-    SOURCE.replace("var AGENDA_ID = 'primary';", "var AGENDA_ID = 'rdv-presta@group.calendar.google.com';"),
+    // Quel que soit l'agenda configure dans le script, le test le remplace
+    // par le faux agenda « Rdv Presta ».
+    SOURCE.replace(/^var AGENDA_ID = '[^']*';$/m, "var AGENDA_ID = 'rdv-presta@group.calendar.google.com';"),
     contexte
   );
 
