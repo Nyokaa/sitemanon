@@ -133,6 +133,14 @@ describe("catalogue", () => {
     expect(ids("2026-12-01")).not.toContain("cocooning");
   });
 
+  it("les soins japonais ne proposent pas le Cocooning, deja compris dedans", () => {
+    for (const id of ["rituel-japonais", "manucure-japonaise"]) {
+      const p = trouverPrestation(id)!;
+      expect(optionsDisponibles(p, "2026-11-20").map((o) => o.id)).not.toContain("cocooning");
+      expect(composerPanier(id, ["cocooning"], "2026-11-20")!.totalCents).toBe(p.prixCents);
+    }
+  });
+
   it("refuse une prestation inconnue", () => {
     expect(composerPanier("inconnue", [], null)).toBeNull();
   });

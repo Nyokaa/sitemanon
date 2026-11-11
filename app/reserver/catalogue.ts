@@ -79,7 +79,6 @@ export const OPTIONS: Option[] = [
 ];
 
 const POSE = ["cocooning", "manucure-profonde", "french", "baby-boomer"];
-const SOIN = ["cocooning"];
 
 export const PRESTATIONS: Prestation[] = [
   {
@@ -140,7 +139,8 @@ export const PRESTATIONS: Prestation[] = [
       "Manucure japonaise, gommage, massage et hydratation des mains. Vous repartez avec une mini-box et vos conseils.",
     dureeMin: 75,
     prixCents: 10000,
-    options: SOIN,
+    // Gommage et massage sont deja compris : pas de Cocooning en option.
+    options: [],
   },
   {
     id: "manucure-japonaise",
@@ -150,7 +150,8 @@ export const PRESTATIONS: Prestation[] = [
       "Nourrit, fortifie et redonne de l'éclat aux ongles naturels fragilisés ou après une dépose.",
     dureeMin: 60,
     prixCents: 7000,
-    options: SOIN,
+    // Gommage et massage sont deja compris : pas de Cocooning en option.
+    options: [],
   },
   {
     id: "depose-acrylique",
