@@ -158,11 +158,58 @@ function stripe_(methode, chemin, champs) {
 // --------------------------------------------------------------- agenda
 
 /** Les plages occupees entre debut et fin, sans rien reveler d'autre. */
-function occupations_(debut, fin) {
+function agendasLus_() {
   var ids = [AGENDA_ID];
   AGENDAS_QUI_BLOQUENT.forEach(function (id) {
     if (ids.indexOf(id) === -1) ids.push(id);
   });
+  return ids;
+}
+
+/**
+ * Les plages occupees pour l'affichage, en UNE requete free/busy.
+ *
+ * Lire les evenements un par un coutait un aller-retour chez Google par
+ * evenement : 24 secondes pour les 62 jours de la page, mesure le
+ * 11 novembre 2026. Free/busy rend tout d'un coup.
+ *
+ * Il faut le service avance « Google Calendar API » (Services, +). Absent,
+ * on retombe sur la lecture exacte, lente mais juste.
+ *
+ * Free/busy suit la disponibilite de chaque evenement : un evenement marque
+ * « Disponible » ne bloque pas, et une journee entiere est « Disponible »
+ * par defaut dans Google Agenda. Des conges se posent donc en « Occupe ».
+ */
+function occupationsAffichees_(debut, fin) {
+  if (typeof Calendar === 'undefined' || !Calendar.Freebusy) return occupations_(debut, fin);
+  var reponse = Calendar.Freebusy.query({
+    timeMin: debut.toISOString(),
+    timeMax: fin.toISOString(),
+    items: agendasLus_().map(function (id) { return { id: id }; }),
+  });
+  var plages = [];
+  Object.keys(reponse.calendars || {}).forEach(function (id) {
+    var agenda = reponse.calendars[id];
+    // Un agenda illisible ne doit pas passer pour un agenda vide : ce serait
+    // proposer des creneaux qui ne sont pas libres.
+    if (agenda.errors && agenda.errors.length) {
+      throw new Error('free/busy ' + id + ' : ' + JSON.stringify(agenda.errors));
+    }
+    (agenda.busy || []).forEach(function (b) {
+      plages.push({ debut: new Date(b.start).toISOString(), fin: new Date(b.end).toISOString() });
+    });
+  });
+  return plages;
+}
+
+/**
+ * Les plages occupees, lues evenement par evenement. Lent sur une longue
+ * periode, mais exact a la seconde : c'est la lecture qui decide, sous
+ * verrou, si un creneau est encore libre au moment de reserver. Free/busy
+ * peut tarder de quelques secondes sur un evenement tout juste cree.
+ */
+function occupations_(debut, fin) {
+  var ids = agendasLus_();
   var evenements = [];
   ids.forEach(function (id) {
     evenements = evenements.concat(agendaParId_(id).getEvents(debut, fin));
@@ -226,7 +273,7 @@ function doGet(e) {
     if (fin - debut > HORIZON_JOURS * 86400000) {
       return json_({ ok: false, erreur: 'periode trop longue' });
     }
-    return json_({ ok: true, occupations: occupations_(debut, fin) });
+    return json_({ ok: true, occupations: occupationsAffichees_(debut, fin) });
   }
 
   if (p.action === 'confirmer' || p.action === 'annuler') {

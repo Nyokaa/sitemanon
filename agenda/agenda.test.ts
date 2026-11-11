@@ -170,6 +170,7 @@ function monter() {
   };
 
   return {
+    contexte,
     evenements,
     perso,
     mails,
@@ -364,6 +365,51 @@ describe("deux agendas", () => {
     s.sessions.get(session)!.payment_status = "paid";
     s.get({ action: "confirmer", session });
     expect(s.mails[0].to).toBe("manon@exemple.fr");
+  });
+});
+
+describe("free/busy", () => {
+  it("l'affichage passe par free/busy quand le service est active, la reservation reste exacte", () => {
+    const s = monter();
+    const appels: unknown[] = [];
+    s.contexte.Calendar = {
+      Freebusy: {
+        query: (q: unknown) => {
+          appels.push(q);
+          return {
+            calendars: {
+              primary: { busy: [{ start: "2026-12-07T09:00:00Z", end: "2026-12-07T10:00:00Z" }] },
+            },
+          };
+        },
+      },
+    };
+    const r = s.get({ action: "occupations", debut: "2026-12-07T00:00:00Z", fin: "2026-12-08T00:00:00Z" });
+    expect(r.occupations).toEqual([
+      { debut: "2026-12-07T09:00:00.000Z", fin: "2026-12-07T10:00:00.000Z" },
+    ]);
+    // Une seule requete, pour les deux agendas.
+    expect(appels).toHaveLength(1);
+    expect((appels[0] as { items: { id: string }[] }).items.map((i) => i.id)).toEqual([
+      "rdv-presta@group.calendar.google.com",
+      "primary",
+    ]);
+
+    // La verification au moment de reserver ne passe pas par free/busy.
+    s.reserver({ ...CLIENTE, prestationId: "semi-permanent", debut: lundiProchain(9) });
+    expect(appels).toHaveLength(1);
+  });
+
+  it("un agenda illisible fait echouer l'affichage plutot que de le montrer vide", () => {
+    const s = monter();
+    s.contexte.Calendar = {
+      Freebusy: {
+        query: () => ({ calendars: { primary: { errors: [{ reason: "notFound" }] } } }),
+      },
+    };
+    expect(() =>
+      s.get({ action: "occupations", debut: "2026-12-07T00:00:00Z", fin: "2026-12-08T00:00:00Z" })
+    ).toThrow(/free\/busy/);
   });
 });
 
