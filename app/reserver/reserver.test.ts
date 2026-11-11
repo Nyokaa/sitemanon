@@ -141,6 +141,13 @@ describe("catalogue", () => {
     }
   });
 
+  it("le nail art reserve 15 minutes sans rien facturer en ligne", () => {
+    const panier = composerPanier("semi-permanent", ["nail-art"], "2026-12-01")!;
+    expect(panier.dureeMin).toBe(90 + 15);
+    expect(panier.totalCents).toBe(7000);
+    expect(panier.options.map((o) => o.id)).toEqual(["nail-art"]);
+  });
+
   it("refuse une prestation inconnue", () => {
     expect(composerPanier("inconnue", [], null)).toBeNull();
   });

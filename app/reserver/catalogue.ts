@@ -33,6 +33,11 @@ export type Option = {
   prixCents: number;
   /** Derniere date de rendez-vous (AAAA-MM-JJ, heure de Paris) ou l'option vaut. */
   jusquau?: string;
+  /**
+   * Grille affichee quand le prix depend du modele. L'option vaut alors
+   * 0 en ligne : elle reserve le temps, le supplement se regle au studio.
+   */
+  grille?: string[];
 };
 
 export const CATEGORIES: { id: CategorieId; nom: string }[] = [
@@ -76,9 +81,25 @@ export const OPTIONS: Option[] = [
     dureeMin: 20,
     prixCents: 1000,
   },
+  {
+    // Repris de Planity : 15 minutes reservees, prix selon le modele.
+    id: "nail-art",
+    nom: "Nail art",
+    description:
+      "Le tarif dépend du temps et de la complexité : il se règle au studio. Décrivez votre idée dans le message, à l'étape des coordonnées.",
+    dureeMin: 15,
+    prixCents: 0,
+    grille: [
+      "Petit nail art réalisé en 10 minutes : +2 € par ongle",
+      "3D simple : +2 € par élément",
+      "3D complexe : +5 € par élément",
+      "Stickers Disney ou créations similaires : à partir de 30 €",
+      "Pour un nail art complexe ou long à réaliser, contactez-moi avant votre rendez-vous pour que je prévoie le temps nécessaire.",
+    ],
+  },
 ];
 
-const POSE = ["cocooning", "manucure-profonde", "french", "baby-boomer"];
+const POSE = ["cocooning", "manucure-profonde", "french", "baby-boomer", "nail-art"];
 
 export const PRESTATIONS: Prestation[] = [
   {

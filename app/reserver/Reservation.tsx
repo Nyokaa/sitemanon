@@ -262,6 +262,7 @@ export function Reservation() {
       ) : null}
       <p className="mt-1">
         {formaterDuree(panier.dureeMin)} · {formaterPrix(panier.totalCents)}
+        {panier.options.some((o) => o.grille) ? " + nail art réglé au studio" : ""}
       </p>
     </div>
   ) : null;
@@ -364,20 +365,22 @@ export function Reservation() {
                                       <span className="block text-[var(--color-ink-soft)]/75">
                                         {o.description}
                                       </span>
+                                      {o.grille && optionIds.includes(o.id) ? (
+                                        <ul className="mt-2 list-disc space-y-1 pl-4 text-[var(--color-ink-soft)]/85">
+                                          {o.grille.map((ligne) => (
+                                            <li key={ligne}>{ligne}</li>
+                                          ))}
+                                        </ul>
+                                      ) : null}
                                     </span>
-                                    <span className="shrink-0">
-                                      +{formaterPrix(o.prixCents)} · {formaterDuree(o.dureeMin)}
+                                    <span className="shrink-0 text-right">
+                                      {o.prixCents > 0 ? `+${formaterPrix(o.prixCents)}` : "Au studio"}
+                                      {" · "}
+                                      {formaterDuree(o.dureeMin)}
                                     </span>
                                   </label>
                                 ))}
                               </div>
-                              {p.categorie === "mains" ? (
-                                <p className="mt-3 text-xs leading-relaxed text-[var(--color-ink)]/55">
-                                  Nail art : de 2 € par ongle à partir de 30 € selon la
-                                  complexité. Décrivez votre idée à l&apos;étape suivante,
-                                  le supplément se règle au studio.
-                                </p>
-                              ) : null}
                             </fieldset>
                           ) : null}
                           <button
