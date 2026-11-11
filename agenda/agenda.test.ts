@@ -41,7 +41,7 @@ function formatDate(d: Date, _fuseau: string, motif: string): string {
 
 function monter() {
   const evenements: Evt[] = [];
-  const mails: { subject: string }[] = [];
+  const mails: { to: string; subject: string }[] = [];
   const appelsStripe: { methode: string; chemin: string; champs?: Record<string, string> }[] = [];
   const sessions = new Map<string, Record<string, unknown>>();
   let stripeEnPanne = false;
@@ -63,6 +63,7 @@ function monter() {
   });
 
   const agenda = {
+    getId: () => "manon@exemple.fr",
     getEvents: (debut: Date, fin: Date) =>
       evenements
         .filter((e) => !e.supprime && e.debut < fin && debut < e.fin)
@@ -109,8 +110,7 @@ function monter() {
       getScriptProperties: () => ({ getProperty: () => "sk_test_faux" }),
     },
     Utilities: { formatDate },
-    MailApp: { sendEmail: (m: { subject: string }) => mails.push(m) },
-    Session: { getEffectiveUser: () => ({ getEmail: () => "manon@exemple.fr" }) },
+    MailApp: { sendEmail: (m: { to: string; subject: string }) => mails.push(m) },
     UrlFetchApp: {
       fetch: (url: string, o?: { method: string; payload?: Record<string, string> }) => {
         if (url.endsWith("/reserver/catalogue.json")) {
@@ -278,6 +278,8 @@ describe("apres le paiement", () => {
     s.get({ action: "confirmer", session });
     s.menage();
     expect(s.mails).toHaveLength(1);
+    // Sans Session : le mail part a l'adresse de l'agenda principal.
+    expect(s.mails[0].to).toBe("manon@exemple.fr");
     const e = s.evenements[0];
     expect(e.titre.startsWith("À recopier sur Planity")).toBe(true);
     expect(e.description).toContain("95 € payé en ligne");

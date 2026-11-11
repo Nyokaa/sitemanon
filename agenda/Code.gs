@@ -33,7 +33,10 @@
 // Identifiant de l'agenda. « primary » = l'agenda principal du compte.
 var AGENDA_ID = 'primary';
 
-// Adresse qui recoit un mail a chaque rendez-vous paye. Vide = celle du compte.
+// Adresse qui recoit un mail a chaque rendez-vous paye. Vide = celle du
+// compte, lue dans l'identifiant de son agenda principal : c'est son adresse.
+// On evite ainsi Session.getEffectiveUser(), dont l'autorisation (lire
+// l'email du compte) est soupconnee de faire echouer le consentement (500).
 var MAIL_MANON = '';
 
 var SITE_URL = 'https://manonjeanpert.com';
@@ -178,7 +181,7 @@ function marquerPaye_(e, session) {
 
   var quand = Utilities.formatDate(e.getStartTime(), FUSEAU, "dd/MM/yyyy 'à' HH'h'mm");
   MailApp.sendEmail({
-    to: MAIL_MANON || Session.getEffectiveUser().getEmail(),
+    to: MAIL_MANON || CalendarApp.getDefaultCalendar().getId(),
     subject: 'Nouveau rendez-vous payé : ' + quand,
     body:
       e.getDescription() +
