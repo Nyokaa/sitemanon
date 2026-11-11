@@ -62,8 +62,14 @@ function monter() {
     deleteEvent: () => (e.supprime = true),
   });
 
-  const agenda = {
+  const perso: Evt[] = [];
+  const agendaPerso = {
     getId: () => "manon@exemple.fr",
+    getEvents: (debut: Date, fin: Date) =>
+      perso.filter((e) => e.debut < fin && debut < e.fin).map(versEvenement),
+  };
+  const agenda = {
+    getId: () => "rdv-presta@group.calendar.google.com",
     getEvents: (debut: Date, fin: Date) =>
       evenements
         .filter((e) => !e.supprime && e.debut < fin && debut < e.fin)
@@ -96,8 +102,9 @@ function monter() {
   const contexte: Record<string, unknown> = {
     console,
     CalendarApp: {
-      getDefaultCalendar: () => agenda,
-      getCalendarById: () => agenda,
+      getDefaultCalendar: () => agendaPerso,
+      getCalendarById: (id: string) =>
+        id === "rdv-presta@group.calendar.google.com" ? agenda : null,
       GuestStatus: { NO: "NO" },
     },
     ContentService: {
@@ -150,7 +157,10 @@ function monter() {
     },
   };
   vm.createContext(contexte);
-  vm.runInContext(SOURCE, contexte);
+  vm.runInContext(
+    SOURCE.replace("var AGENDA_ID = 'primary';", "var AGENDA_ID = 'rdv-presta@group.calendar.google.com';"),
+    contexte
+  );
 
   const appeler = (nom: string, ...args: unknown[]) => {
     const r = (contexte[nom] as (...a: unknown[]) => { texte?: string })(...args);
@@ -159,6 +169,7 @@ function monter() {
 
   return {
     evenements,
+    perso,
     mails,
     appelsStripe,
     sessions,
@@ -316,6 +327,41 @@ describe("apres le paiement", () => {
     expect(s.get({ action: "confirmer", session: "../../charges" }).erreur).toBe(
       "session invalide"
     );
+  });
+});
+
+describe("deux agendas", () => {
+  it("un rendez-vous personnel bloque le creneau, et la reservation s'ecrit dans Rdv Presta", () => {
+    const s = monter();
+    const debut = new Date(lundiProchain(9));
+    s.perso.push({
+      id: "perso1",
+      titre: "Dentiste",
+      debut,
+      fin: new Date(debut.getTime() + 3600000),
+      description: "",
+      tags: {},
+      cree: new Date(),
+      supprime: false,
+    });
+    expect(
+      s.reserver({ ...CLIENTE, prestationId: "semi-permanent", debut: debut.toISOString() })
+    ).toEqual({ ok: false, raison: "pris" });
+
+    const r = s.reserver({ ...CLIENTE, prestationId: "semi-permanent", debut: lundiProchain(11) });
+    expect(r.ok).toBe(true);
+    // Ecrit dans Rdv Presta, jamais dans l'agenda personnel.
+    expect(s.evenements).toHaveLength(1);
+    expect(s.perso).toHaveLength(1);
+  });
+
+  it("le mail part toujours a l'adresse du compte, pas a l'identifiant de Rdv Presta", () => {
+    const s = monter();
+    s.reserver({ ...CLIENTE, prestationId: "semi-permanent", debut: lundiProchain(9) });
+    const session = [...s.sessions.keys()][0];
+    s.sessions.get(session)!.payment_status = "paid";
+    s.get({ action: "confirmer", session });
+    expect(s.mails[0].to).toBe("manon@exemple.fr");
   });
 });
 

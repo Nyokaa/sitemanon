@@ -30,8 +30,15 @@
  * Planity n'a pas d'API : rien ici ne lit ni n'ecrit Planity.
  */
 
-// Identifiant de l'agenda. « primary » = l'agenda principal du compte.
+// L'agenda ou s'ecrivent les rendez-vous pris en ligne (« Rdv Presta »).
+// « primary » = l'agenda principal du compte.
 var AGENDA_ID = 'primary';
+
+// Les agendas dont les evenements bloquent AUSSI un creneau, en plus de
+// AGENDA_ID : un rendez-vous personnel de Manon ne doit pas pouvoir etre
+// vendu. Un evenement « journee entiere » (des conges) bloque toute la
+// journee. Les rendez-vous ne s'ecrivent jamais ici.
+var AGENDAS_QUI_BLOQUENT = ['primary'];
 
 // Adresse qui recoit un mail a chaque rendez-vous paye. Vide = celle du
 // compte, lue dans l'identifiant de son agenda principal : c'est son adresse.
@@ -54,10 +61,14 @@ var PREFIXE_PAYE = 'À recopier sur Planity · ';
 
 // ---------------------------------------------------------------- outils
 
+function agendaParId_(id) {
+  var a = id === 'primary' ? CalendarApp.getDefaultCalendar() : CalendarApp.getCalendarById(id);
+  if (!a) throw new Error('agenda introuvable : ' + id);
+  return a;
+}
+
 function agenda_() {
-  return AGENDA_ID === 'primary'
-    ? CalendarApp.getDefaultCalendar()
-    : CalendarApp.getCalendarById(AGENDA_ID);
+  return agendaParId_(AGENDA_ID);
 }
 
 function json_(objet) {
@@ -148,8 +159,15 @@ function stripe_(methode, chemin, champs) {
 
 /** Les plages occupees entre debut et fin, sans rien reveler d'autre. */
 function occupations_(debut, fin) {
-  return agenda_()
-    .getEvents(debut, fin)
+  var ids = [AGENDA_ID];
+  AGENDAS_QUI_BLOQUENT.forEach(function (id) {
+    if (ids.indexOf(id) === -1) ids.push(id);
+  });
+  var evenements = [];
+  ids.forEach(function (id) {
+    evenements = evenements.concat(agendaParId_(id).getEvents(debut, fin));
+  });
+  return evenements
     .filter(function (e) {
       // Un evenement auquel Manon a repondu « non » ne bloque pas sa journee.
       var statut = e.getMyStatus && e.getMyStatus();
