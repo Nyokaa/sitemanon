@@ -89,7 +89,9 @@ export default function MentionsLegales() {
               <p className="mt-3 leading-relaxed">
                 Lors d&apos;une réservation en ligne, vos coordonnées sont
                 enregistrées dans l&apos;agenda Google de Manon Jeanpert, pour
-                le seul suivi de votre rendez-vous.
+                le seul suivi de votre rendez-vous. Le paiement en ligne est
+                traité par Stripe : vos données de carte ne transitent jamais
+                par ce site.
               </p>
               <p className="mt-3 leading-relaxed">
                 Aucun cookie de mesure ni de publicité n&apos;est déposé tant que vous

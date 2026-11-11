@@ -31,8 +31,21 @@ export function trackEvent(
  */
 export function trackPixel(
   name: string,
-  params?: Record<string, unknown>
+  params?: Record<string, unknown>,
+  options?: { eventID?: string }
 ): void {
   if (typeof window === "undefined") return;
-  window.fbq?.("track", name, params ?? {});
+  const envoyer = () => {
+    if (!window.fbq) return false;
+    window.fbq("track", name, params ?? {}, options ?? {});
+    return true;
+  };
+  if (envoyer() || getStoredConsent() !== "accepted") return;
+  // Consentement donne mais pixel pas encore charge : c'est le cas d'un
+  // evenement emis des l'arrivee sur la page. On attend jusqu'a dix secondes
+  // plutot que de le perdre en silence.
+  let essais = 0;
+  const minuterie = window.setInterval(() => {
+    if (envoyer() || ++essais > 20) window.clearInterval(minuterie);
+  }, 500);
 }

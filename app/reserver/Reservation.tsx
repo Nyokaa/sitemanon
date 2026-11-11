@@ -23,7 +23,7 @@ import {
   joursOuverts,
 } from "./creneaux";
 
-type Etape = "prestation" | "creneau" | "coordonnees" | "confirme";
+type Etape = "prestation" | "creneau" | "coordonnees";
 
 type Agenda =
   | { etat: "chargement" }
@@ -94,8 +94,36 @@ export function Reservation() {
   // Une publicite peut pointer sur une prestation : /reserver/?prestation=semi-permanent
   useEffect(() => {
     const id = new URLSearchParams(window.location.search).get("prestation");
-    if (id && trouverPrestation(id)) setPrestationId(id);
+    const arrivee = id ? trouverPrestation(id) : undefined;
+    if (arrivee) {
+      setPrestationId(arrivee.id);
+      // Arrivee par une pub sur une prestation : elle est vue sans clic.
+      trackPixel("ViewContent", {
+        content_ids: [arrivee.id],
+        content_type: "product",
+        value: arrivee.prixCents / 100,
+        currency: "EUR",
+      });
+    }
     setMaintenant(new Date());
+
+    // Retour de Stripe sans paiement : on libere tout de suite le creneau
+    // bloque, plutot que d'attendre que la session expire.
+    const annule = new URLSearchParams(window.location.search).get("annule");
+    if (annule && AGENDA_URL) {
+      window.history.replaceState(null, "", window.location.pathname);
+      fetch(`${AGENDA_URL}?action=annuler&session=${encodeURIComponent(annule)}`)
+        .then((r) => r.json())
+        .then((json) => {
+          if (json.statut === "paye") {
+            window.location.href = `/reserver/merci/?session=${encodeURIComponent(annule)}`;
+            return;
+          }
+          setAlerte("Le paiement a été interrompu et le créneau libéré. Vous pouvez en choisir un nouveau.");
+          recharger();
+        })
+        .catch(() => {});
+    }
   }, []);
 
   const recharger = () => {
@@ -173,29 +201,34 @@ export function Reservation() {
         method: "POST",
         // text/plain : pas de preflight CORS, que Google ne sait pas servir.
         headers: { "Content-Type": "text/plain;charset=utf-8" },
+        // Le navigateur dit ce qui est choisi, jamais ce que ca coute : le
+        // script recalcule prix et duree depuis le catalogue publie.
         body: JSON.stringify({
+          prestationId: panier.prestation.id,
+          optionIds: panier.options.map((o) => o.id),
           debut: creneau.debut.toISOString(),
-          fin: creneau.fin.toISOString(),
-          prestation: panier.prestation.nom,
-          options: panier.options.map((o) => o.nom).join(", "),
-          total: formaterPrix(panier.totalCents),
           ...form,
         }),
       });
       const json = await r.json();
-      if (json.ok) {
-        trackEvent("reservation_confirmee", {
+      if (json.ok && json.url) {
+        const valeur = (json.montantCents ?? panier.totalCents) / 100;
+        trackEvent("begin_checkout", {
           prestation: panier.prestation.id,
-          value: panier.totalCents / 100,
+          value: valeur,
           currency: "EUR",
         });
-        trackPixel("Schedule", {
+        trackPixel("InitiateCheckout", {
           content_ids: [panier.prestation.id],
-          value: panier.totalCents / 100,
+          value: valeur,
           currency: "EUR",
         });
-        setEtape("confirme");
-        window.scrollTo({ top: 0, behavior: "smooth" });
+        // Le pixel envoie ses evenements en tache de fond : on lui laisse un
+        // instant avant de quitter la page pour Stripe.
+        setTimeout(() => {
+          window.location.href = json.url;
+        }, 300);
+        return;
       } else if (json.raison === "pris") {
         setAlerte(
           "Ce créneau vient d'être réservé par quelqu'un d'autre. Choisissez-en un autre, les disponibilités sont à jour."
@@ -212,9 +245,8 @@ export function Reservation() {
       setAlerte(
         `La réservation n'a pas pu être enregistrée. Réessayez dans un instant, ou appelez-moi au ${SITE.phone}.`
       );
-    } finally {
-      setEnvoi("repos");
     }
+    setEnvoi("repos");
   };
 
   const recap = panier ? (
@@ -247,24 +279,6 @@ export function Reservation() {
       ))}
     </ol>
   );
-
-  if (etape === "confirme" && panier && creneau && date) {
-    return (
-      <div className="mt-10 space-y-6">
-        <div className="rounded-3xl border border-[var(--color-accent)]/40 bg-[var(--color-bg-soft)] p-8">
-          <p className="font-serif text-2xl text-[var(--color-ink)]">
-            Merci {form.prenom}, votre rendez-vous est enregistré.
-          </p>
-          <p className="mt-3 text-[var(--color-ink-soft)]">
-            Je vous attends au {SITE.address.street}, {SITE.address.postalCode}{" "}
-            {SITE.address.city}. Le règlement se fait au studio. En cas
-            d&apos;empêchement, prévenez-moi au {SITE.phone}.
-          </p>
-        </div>
-        {recap}
-      </div>
-    );
-  }
 
   return (
     <div>
@@ -557,8 +571,14 @@ export function Reservation() {
             className={champ}
           />
           <button type="submit" disabled={envoi === "en-cours"} className={`${bouton} w-full sm:w-auto`}>
-            {envoi === "en-cours" ? "Enregistrement…" : "Confirmer le rendez-vous"}
+            {envoi === "en-cours"
+              ? "Ouverture du paiement…"
+              : `Payer et réserver · ${formaterPrix(panier.totalCents)}`}
           </button>
+          <p className="text-xs leading-relaxed text-[var(--color-ink)]/55">
+            Paiement sécurisé par Stripe : carte bancaire, Apple Pay ou Google Pay.
+            Le créneau vous est réservé pendant 30 minutes, le temps du paiement.
+          </p>
         </form>
       ) : null}
     </div>
