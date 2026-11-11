@@ -77,11 +77,22 @@ export default function MentionsLegales() {
                 Ce site utilise <strong>Google Analytics 4</strong> pour mesurer
                 la fréquentation et améliorer l&apos;expérience. Les données
                 sont anonymisées (IP tronquée) et conservées 14 mois maximum.
-                Aucune donnée n&apos;est partagée avec des tiers à des fins
-                publicitaires.
               </p>
               <p className="mt-3 leading-relaxed">
-                Aucun cookie analytique n&apos;est déposé tant que vous
+                Il utilise aussi le <strong>pixel Meta</strong> (Facebook,
+                Instagram) pour mesurer l&apos;efficacité de nos publicités :
+                pages consultées, prestation choisie et prise de rendez-vous,
+                avec son montant. Ces informations sont transmises à Meta
+                Platforms Ireland Ltd. Vos nom, téléphone et email ne lui sont
+                jamais transmis.
+              </p>
+              <p className="mt-3 leading-relaxed">
+                Lors d&apos;une réservation en ligne, vos coordonnées sont
+                enregistrées dans l&apos;agenda Google de Manon Jeanpert, pour
+                le seul suivi de votre rendez-vous.
+              </p>
+              <p className="mt-3 leading-relaxed">
+                Aucun cookie de mesure ni de publicité n&apos;est déposé tant que vous
                 n&apos;avez pas donné votre consentement explicite via le
                 bandeau qui s&apos;affiche à votre première visite. Vous pouvez
                 à tout moment revenir sur votre choix via le lien{" "}

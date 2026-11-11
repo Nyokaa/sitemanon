@@ -27,8 +27,7 @@ export const SITE = {
     "https://www.google.com/search?sca_esv=f746b67cbf3d13a5&q=Manon+Jeanpert+Proth%C3%A9siste+ongulaire+%C3%A0+Lyon+6+Avis&stick=H4sIAAAAAAAAAONgkxI2NzYxsbSwMLKwMDA1MzW2MDe22MDI-IrRwjcxLz9PwSs1Ma8gtahE4VHDZIWAovySjMMrizOLS1IV8vPSS3MSM4tSFQ4vUPCpBKo1U3AsyyxexEq2VgDdV8jkkAAAAA&rldimm=7344988288056538738&tbm=lcl",
   hours: [
     { day: "Lundi — Jeudi", time: "10h00 — 19h00" },
-    { day: "Vendredi", time: "10h00 — 13h00" },
-    { day: "Samedi", time: "10h00 — 15h00" },
+    { day: "Vendredi — Samedi", time: "10h00 — 15h00" },
     { day: "Dimanche", time: "Fermé" },
   ],
 };
@@ -66,7 +65,7 @@ export const SERVICES = [
     name: "Remplissage",
     description:
       "Entretien de votre pose existante toutes les 3 à 4 semaines, pour un résultat toujours net.",
-    duration: "2 h",
+    duration: "1 h 45",
     price: "105 €",
     highlight: true,
   },
@@ -75,42 +74,44 @@ export const SERVICES = [
     name: "Gel rallongement",
     description:
       "Création d'une longueur sur-mesure, forme adaptée à votre main et à votre quotidien.",
-    duration: "2 h 15",
+    duration: "1 h 55",
     price: "125 €",
     highlight: false,
   },
   {
-    id: "soins-signature",
-    name: "Soins signature",
+    id: "rituel-japonais",
+    name: "Rituel japonais complet",
     description:
-      "Soin complet adapté aux besoins de vos mains, alliant manucure russe et rituel signature.",
+      "Manucure japonaise, gommage doux, massage et hydratation des mains. Vous repartez avec une mini-box et vos conseils personnalisés.",
     duration: "1 h 15",
     price: "100 €",
     highlight: false,
   },
   {
-    id: "supplement-soins",
-    name: "Supplément soins signature",
+    id: "manucure-profonde",
+    name: "Supplément manucure profonde",
     description:
-      "Sublimez vos mains grâce à un soin complet mêlant manucure russe et rituel premium en complément d'une pose.",
-    duration: "1 h",
-    price: "Sur devis",
+      "Préparation minutieuse des cuticules pour un contour parfaitement net, proche d'une manucure russe. Uniquement en complément d'une prestation mains.",
+    duration: "15 min",
+    price: "10 €",
     highlight: false,
   },
   {
     id: "depose-gel",
     name: "Dépose gel",
-    description: "Retrait soigné de la pose gel, dans le respect de l'ongle.",
+    description:
+      "Retrait soigné de la pose gel, dans le respect de l'ongle. Produit d'entretien offert (valeur 18 €).",
     duration: "30 min",
-    price: "30 €",
+    price: "48 €",
     highlight: false,
   },
   {
     id: "depose-semi",
     name: "Dépose semi-permanent",
-    description: "Retrait du semi-permanent en douceur, sans abîmer l'ongle.",
+    description:
+      "Retrait du semi-permanent en douceur, sans abîmer l'ongle. Produit d'entretien offert (valeur 18 €).",
     duration: "20 min",
-    price: "20 €",
+    price: "38 €",
     highlight: false,
   },
 ];

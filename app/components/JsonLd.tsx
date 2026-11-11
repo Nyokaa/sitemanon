@@ -40,13 +40,7 @@ export function JsonLd() {
       },
       {
         "@type": "OpeningHoursSpecification",
-        dayOfWeek: "Friday",
-        opens: "10:00",
-        closes: "13:00",
-      },
-      {
-        "@type": "OpeningHoursSpecification",
-        dayOfWeek: "Saturday",
+        dayOfWeek: ["Friday", "Saturday"],
         opens: "10:00",
         closes: "15:00",
       },

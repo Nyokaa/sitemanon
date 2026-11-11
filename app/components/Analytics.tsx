@@ -1,12 +1,14 @@
 "use client";
 
 import Script from "next/script";
-import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import {
   CONSENT_KEY,
   Consent,
   GA_MEASUREMENT_ID,
+  META_PIXEL_ID,
   getStoredConsent,
 } from "@/app/lib/analytics";
 
@@ -22,6 +24,19 @@ export function Analytics() {
     window.addEventListener(RESET_EVENT, onReset);
     return () => window.removeEventListener(RESET_EVENT, onReset);
   }, []);
+
+  // Le premier PageView part avec l'initialisation du pixel. Les suivants
+  // suivent la navigation interne, que Next fait sans recharger la page.
+  const pathname = usePathname();
+  const premierePage = useRef(true);
+  useEffect(() => {
+    if (consent !== "accepted") return;
+    if (premierePage.current) {
+      premierePage.current = false;
+      return;
+    }
+    window.fbq?.("track", "PageView");
+  }, [pathname, consent]);
 
   const persist = (value: Consent) => {
     window.localStorage.setItem(CONSENT_KEY, value);
@@ -46,6 +61,17 @@ export function Analytics() {
                 anonymize_ip: true,
                 page_path: window.location.pathname
               });
+            `}
+          </Script>
+          <Script id="meta-pixel" strategy="afterInteractive">
+            {`
+              !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+              n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
+              n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
+              t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,
+              document,'script','https://connect.facebook.net/en_US/fbevents.js');
+              fbq('init', '${META_PIXEL_ID}');
+              fbq('track', 'PageView');
             `}
           </Script>
         </>
@@ -74,9 +100,9 @@ export function Analytics() {
               className="mt-2 text-sm leading-relaxed text-[var(--color-ink-soft)]/85"
             >
               Ce site utilise Google Analytics pour comprendre ce qui intéresse
-              les visiteurs et améliorer l&apos;expérience. Aucune donnée
-              personnelle n&apos;est partagée avec des tiers à des fins
-              publicitaires.{" "}
+              les visiteurs, et le pixel Meta pour mesurer l&apos;efficacité de
+              nos publicités Facebook et Instagram. Ces deux outils ne se
+              chargent que si vous acceptez.{" "}
               <a
                 href="/mentions-legales"
                 className="underline underline-offset-2 hover:text-[var(--color-ink)]"
