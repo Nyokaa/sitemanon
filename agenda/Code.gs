@@ -32,7 +32,7 @@
 
 // L'agenda ou s'ecrivent les rendez-vous pris en ligne (« Rdv Presta »).
 // « primary » = l'agenda principal du compte.
-var AGENDA_ID = 'primary';
+var AGENDA_ID = 'c3e69f35faf05add3df4273aa5f2c875474fd215041fe869f43939814447aee4@group.calendar.google.com';
 
 // Les agendas dont les evenements bloquent AUSSI un creneau, en plus de
 // AGENDA_ID : un rendez-vous personnel de Manon ne doit pas pouvoir etre
