@@ -60,6 +60,24 @@ Pour un premier essai sans argent réel, mettre une clé de test
 Tant que `AGENDA_URL` est vide, la page `/reserver/` le dit et renvoie vers
 Planity.
 
+## Si l'autorisation échoue en erreur 500
+
+Constaté le 11 novembre 2026 sur le compte de Manon : l'écran de
+consentement de Google plante quand toutes les autorisations sont
+demandées d'un coup, alors que chacune passe seule. Le remède est le
+manifeste `appsscript.json` (Paramètres du projet, « Afficher le fichier
+manifeste ») : on y ajoute une portée à la fois dans `oauthScopes`, en
+lançant après chacune la fonction qui en a besoin.
+
+1. `.../auth/calendar` puis `autoriserAgenda`
+2. `.../auth/script.external_request` puis `autoriserInternet` (rend 200)
+3. `.../auth/script.send_mail` puis `autoriserMail`
+4. `.../auth/script.scriptapp` puis `installer`
+
+La version complète du manifeste est dans ce dossier. Une nouvelle
+autorisation s'applique au déploiement existant, mais un changement de
+code demande une nouvelle version.
+
 ## Modifier le script ensuite
 
 Une modification de `Code.gs` ne prend effet qu'après « Déployer »,
