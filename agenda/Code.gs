@@ -384,3 +384,22 @@ function installer() {
   });
   ScriptApp.newTrigger('menage').timeBased().everyMinutes(10).create();
 }
+
+// ------------------------------------------------------- autorisations
+//
+// Le compte de Manon fait echouer l'ecran de consentement de Google (erreur
+// 500) quand toutes les autorisations sont demandees d'un coup, alors que
+// chacune passe seule. Ces fonctions servent a les accorder une par une,
+// en ajoutant les portees au manifeste (appsscript.json) au fur et a mesure.
+
+function autoriserAgenda() {
+  Logger.log(agenda_().getName());
+}
+
+function autoriserInternet() {
+  Logger.log(UrlFetchApp.fetch(SITE_URL + '/reserver/catalogue.json').getResponseCode());
+}
+
+function autoriserMail() {
+  Logger.log(MailApp.getRemainingDailyQuota());
+}
