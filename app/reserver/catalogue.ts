@@ -23,6 +23,11 @@ export type Prestation = {
   prixCents: number;
   /** Supplements proposes avec cette prestation. */
   options: string[];
+  /**
+   * Absente de la liste et muette pour le pixel : on n'y arrive que par son
+   * adresse (/reserver/?prestation=...). Sert aux paiements d'essai.
+   */
+  cachee?: boolean;
 };
 
 export type Option = {
@@ -298,7 +303,28 @@ export const PRESTATIONS: Prestation[] = [
     prixCents: 2000,
     options: [],
   },
+  {
+    // Paiement d'essai : 50 centimes, le minimum que Stripe accepte en euros.
+    // Cachee de la liste, invisible pour le pixel. Adresse :
+    // /reserver/?prestation=test-paiement
+    id: "test-paiement",
+    categorie: "mains",
+    nom: "Test de paiement",
+    description: "Prestation d'essai, réservée aux tests internes. Ne pas utiliser.",
+    dureeMin: 15,
+    prixCents: 50,
+    options: [],
+    cachee: true,
+  },
 ];
+
+/**
+ * Les prestations affichees : toutes sauf les cachees, a moins que la
+ * cachee soit celle demandee par l'adresse.
+ */
+export function prestationsVisibles(choisie: string | null): Prestation[] {
+  return PRESTATIONS.filter((p) => !p.cachee || p.id === choisie);
+}
 
 export function trouverPrestation(id: string): Prestation | undefined {
   return PRESTATIONS.find((p) => p.id === id);

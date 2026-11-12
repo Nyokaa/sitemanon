@@ -37,6 +37,10 @@ function quand(iso: string): string {
  * sert d'eventID, ce qui permet a Meta de dedoublonner de son cote aussi.
  */
 function envoyerAchat(session: string, montantCents: number) {
+  // Paiement d'essai : rien vers Meta ni Analytics.
+  try {
+    if (window.sessionStorage.getItem("mj-paiement-essai")) return;
+  } catch {}
   const cle = `mj-achat-${session}`;
   try {
     if (window.localStorage.getItem(cle)) return;

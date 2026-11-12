@@ -6,7 +6,7 @@ import { trackEvent, trackPixel } from "@/app/lib/analytics";
 import { AGENDA_URL } from "./config";
 import {
   CATEGORIES,
-  PRESTATIONS,
+  prestationsVisibles,
   composerPanier,
   formaterDuree,
   formaterPrix,
@@ -98,7 +98,7 @@ export function Reservation() {
     if (arrivee) {
       setPrestationId(arrivee.id);
       // Arrivee par une pub sur une prestation : elle est vue sans clic.
-      trackPixel("ViewContent", {
+      if (!arrivee.cachee) trackPixel("ViewContent", {
         content_ids: [arrivee.id],
         content_type: "product",
         value: arrivee.prixCents / 100,
@@ -180,6 +180,7 @@ export function Reservation() {
     const p = trouverPrestation(id)!;
     setPrestationId(id);
     setOptionIds([]);
+    if (p.cachee) return;
     trackEvent("reservation_prestation", { prestation: id });
     trackPixel("ViewContent", {
       content_ids: [id],
@@ -213,12 +214,18 @@ export function Reservation() {
       const json = await r.json();
       if (json.ok && json.url) {
         const valeur = (json.montantCents ?? panier.totalCents) / 100;
-        trackEvent("begin_checkout", {
+        // Un paiement d'essai ne doit rien apprendre a Meta : ni ici, ni en
+        // Purchase sur la page de remerciement, qui lit ce marqueur.
+        try {
+          if (panier.prestation.cachee) window.sessionStorage.setItem("mj-paiement-essai", "1");
+          else window.sessionStorage.removeItem("mj-paiement-essai");
+        } catch {}
+        if (!panier.prestation.cachee) trackEvent("begin_checkout", {
           prestation: panier.prestation.id,
           value: valeur,
           currency: "EUR",
         });
-        trackPixel("InitiateCheckout", {
+        if (!panier.prestation.cachee) trackPixel("InitiateCheckout", {
           content_ids: [panier.prestation.id],
           value: valeur,
           currency: "EUR",
@@ -300,7 +307,7 @@ export function Reservation() {
             <section key={cat.id}>
               <h2 className="font-serif text-2xl text-[var(--color-ink)]">{cat.nom}</h2>
               <ul className="mt-4 space-y-3">
-                {PRESTATIONS.filter((p) => p.categorie === cat.id).map((p) => {
+                {prestationsVisibles(prestationId).filter((p) => p.categorie === cat.id).map((p) => {
                   const choisie = p.id === prestationId;
                   // Une offre datee disparait une fois passee. Si le creneau choisi tombe
                   // apres sa fin, composerPanier la retire et le recapitulatif le montre.

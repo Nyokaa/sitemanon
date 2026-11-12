@@ -6,6 +6,7 @@ import {
   optionsDisponibles,
   PRESTATIONS,
   trouverPrestation,
+  prestationsVisibles,
   OPTIONS,
 } from "./catalogue";
 import {
@@ -146,6 +147,15 @@ describe("catalogue", () => {
     expect(panier.dureeMin).toBe(90 + 15);
     expect(panier.totalCents).toBe(7000);
     expect(panier.options.map((o) => o.id)).toEqual(["nail-art"]);
+  });
+
+  it("la prestation d'essai coute 50 centimes et n'est visible que par son adresse", () => {
+    const essai = trouverPrestation("test-paiement")!;
+    expect(essai.prixCents).toBe(50);
+    expect(prestationsVisibles(null).map((p) => p.id)).not.toContain("test-paiement");
+    expect(prestationsVisibles("test-paiement").map((p) => p.id)).toContain("test-paiement");
+    // Les vraies prestations restent toutes visibles.
+    expect(prestationsVisibles(null)).toHaveLength(PRESTATIONS.length - 1);
   });
 
   it("refuse une prestation inconnue", () => {
