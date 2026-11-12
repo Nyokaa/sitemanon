@@ -181,7 +181,9 @@ function agendasLus_() {
  * par defaut dans Google Agenda. Des conges se posent donc en « Occupe ».
  */
 function occupationsAffichees_(debut, fin) {
-  if (typeof Calendar === 'undefined' || !Calendar.Freebusy) return occupations_(debut, fin);
+  if (typeof Calendar === 'undefined' || !Calendar.Freebusy) {
+    return { plages: occupations_(debut, fin), source: 'evenements' };
+  }
   var reponse = Calendar.Freebusy.query({
     timeMin: debut.toISOString(),
     timeMax: fin.toISOString(),
@@ -199,7 +201,58 @@ function occupationsAffichees_(debut, fin) {
       plages.push({ debut: new Date(b.start).toISOString(), fin: new Date(b.end).toISOString() });
     });
   });
-  return plages;
+  return { plages: plages, source: 'freebusy' };
+}
+
+// ---------------------------------------------------------------- memoire
+//
+// Meme en une requete, interroger Google prend des secondes, et la page
+// attendait jusqu'a 30 secondes (mesure le 12 novembre 2026). Le menage,
+// qui tourne toutes les dix minutes, recalcule donc les disponibilites et
+// les garde en memoire : une visiteuse lit la memoire, sans attendre Google.
+//
+// La memoire ne decide jamais d'une reservation : doPost relit l'agenda en
+// direct, sous verrou. Au pire, un creneau que Manon vient de bloquer a la
+// main reste affiche dix minutes, et sa reservation est refusee.
+
+var CLE_MEMOIRE = 'occupations';
+var MEMOIRE_SECONDES = 20 * 60;
+
+function memoriser_() {
+  var maintenant = new Date();
+  var debut = new Date(maintenant.getTime() - 3600000);
+  var fin = new Date(maintenant.getTime() + HORIZON_JOURS * 86400000);
+  var lu = occupationsAffichees_(debut, fin);
+  var memoire = {
+    debut: debut.toISOString(),
+    fin: fin.toISOString(),
+    source: lu.source,
+    calculeLe: maintenant.toISOString(),
+    plages: lu.plages,
+  };
+  CacheService.getScriptCache().put(CLE_MEMOIRE, JSON.stringify(memoire), MEMOIRE_SECONDES);
+  return memoire;
+}
+
+function memoire_() {
+  var texte = CacheService.getScriptCache().get(CLE_MEMOIRE);
+  return texte ? JSON.parse(texte) : null;
+}
+
+/** Ajoute ou retire une plage de la memoire, sans attendre le prochain calcul. */
+function retoucherMemoire_(debut, fin, ajouter) {
+  var memoire = memoire_();
+  if (!memoire) return;
+  var d = debut.toISOString();
+  var f = fin.toISOString();
+  if (ajouter) {
+    memoire.plages.push({ debut: d, fin: f });
+  } else {
+    memoire.plages = memoire.plages.filter(function (p) {
+      return !(p.debut === d && p.fin === f);
+    });
+  }
+  CacheService.getScriptCache().put(CLE_MEMOIRE, JSON.stringify(memoire), MEMOIRE_SECONDES);
 }
 
 /**
@@ -257,7 +310,10 @@ function marquerPaye_(e, session) {
 /** Libere un creneau jamais paye. Ne touche jamais un rendez-vous paye. */
 function liberer_(e) {
   if (e.getTag(TAG_STATUT) === 'paye') return false;
+  var debut = e.getStartTime();
+  var fin = e.getEndTime();
   e.deleteEvent();
+  retoucherMemoire_(debut, fin, false);
   return true;
 }
 
@@ -273,7 +329,22 @@ function doGet(e) {
     if (fin - debut > HORIZON_JOURS * 86400000) {
       return json_({ ok: false, erreur: 'periode trop longue' });
     }
-    return json_({ ok: true, occupations: occupationsAffichees_(debut, fin) });
+    var memoire = memoire_();
+    var depuisMemoire = Boolean(memoire);
+    if (!memoire || debut < new Date(memoire.debut) || fin > new Date(memoire.fin)) {
+      memoire = memoriser_();
+      depuisMemoire = false;
+    }
+    var plages = memoire.plages.filter(function (p) {
+      return new Date(p.debut) < fin && debut < new Date(p.fin);
+    });
+    return json_({
+      ok: true,
+      occupations: plages,
+      source: memoire.source,
+      memoire: depuisMemoire,
+      calculeLe: memoire.calculeLe,
+    });
   }
 
   if (p.action === 'confirmer' || p.action === 'annuler') {
@@ -378,6 +449,7 @@ function doPost(e) {
       { description: description }
     );
     evenement.setTag(TAG_STATUT, 'attente');
+    retoucherMemoire_(debut, fin, true);
 
     var session;
     try {
@@ -402,6 +474,7 @@ function doPost(e) {
     } catch (err) {
       // Sans paiement ouvert, le creneau ne doit pas rester bloque.
       evenement.deleteEvent();
+      retoucherMemoire_(debut, fin, false);
       console.error(err);
       return json_({ ok: false, erreur: 'paiement indisponible' });
     }
@@ -436,14 +509,24 @@ function menage() {
       if (maintenant - e.getDateCreated() > 5 * 60000) e.deleteEvent();
       return;
     }
-    var session = stripe_('get', '/checkout/sessions/' + id);
-    if (session.payment_status === 'paid') marquerPaye_(e, session);
-    else if (session.status === 'expired') liberer_(e);
+    try {
+      var session = stripe_('get', '/checkout/sessions/' + id);
+      if (session.payment_status === 'paid') marquerPaye_(e, session);
+      else if (session.status === 'expired') liberer_(e);
+    } catch (err) {
+      // Un paiement illisible ne doit ni bloquer les autres, ni empecher la
+      // memoire de se recalculer.
+      console.error(err);
+    }
   });
+  // Recalculee a chaque passage : une visiteuse ne paie jamais le temps de
+  // lecture de l'agenda.
+  memoriser_();
 }
 
 /** A lancer une fois a la main : installe le declencheur du menage. */
 function installer() {
+  memoriser_();
   ScriptApp.getProjectTriggers().forEach(function (t) {
     if (t.getHandlerFunction() === 'menage') ScriptApp.deleteTrigger(t);
   });

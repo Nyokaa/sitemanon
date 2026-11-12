@@ -45,6 +45,7 @@ function monter() {
   const appelsStripe: { methode: string; chemin: string; champs?: Record<string, string> }[] = [];
   const sessions = new Map<string, Record<string, unknown>>();
   let stripeEnPanne = false;
+  const cache = new Map<string, string>();
   let n = 0;
 
   const versEvenement = (e: Evt) => ({
@@ -112,7 +113,12 @@ function monter() {
       createTextOutput: (t: string) => ({ setMimeType: () => ({ texte: t }) }),
     },
     LockService: { getScriptLock: () => ({ tryLock: () => true, releaseLock: () => {} }) },
-    CacheService: { getScriptCache: () => ({ get: () => null, put: () => {} }) },
+    CacheService: {
+      getScriptCache: () => ({
+        get: (k: string) => (cache.has(k) ? cache.get(k)! : null),
+        put: (k: string, v: string) => cache.set(k, v),
+      }),
+    },
     PropertiesService: {
       getScriptProperties: () => ({ getProperty: () => "sk_test_faux" }),
     },
@@ -170,6 +176,7 @@ function monter() {
   };
 
   return {
+    cache,
     contexte,
     evenements,
     perso,
@@ -410,6 +417,71 @@ describe("free/busy", () => {
     expect(() =>
       s.get({ action: "occupations", debut: "2026-12-07T00:00:00Z", fin: "2026-12-08T00:00:00Z" })
     ).toThrow(/free\/busy/);
+  });
+});
+
+describe("memoire des disponibilites", () => {
+  const periode = () => ({
+    action: "occupations",
+    debut: new Date().toISOString(),
+    fin: new Date(Date.now() + 61 * 86400000).toISOString(),
+  });
+
+  it("la premiere lecture calcule, la suivante lit la memoire sans relire l'agenda", () => {
+    const s = monter();
+    let lectures = 0;
+    s.contexte.Calendar = {
+      Freebusy: { query: () => (lectures++, { calendars: { primary: { busy: [] } } }) },
+    };
+    expect(s.get(periode())).toMatchObject({ ok: true, memoire: false, source: "freebusy" });
+    expect(s.get(periode())).toMatchObject({ ok: true, memoire: true });
+    expect(lectures).toBe(1);
+  });
+
+  it("un creneau bloque puis libere se voit tout de suite, sans attendre le menage", () => {
+    const s = monter();
+    s.get(periode());
+    s.reserver({ ...CLIENTE, prestationId: "semi-permanent", debut: lundiProchain(9) });
+    expect(s.get(periode()).occupations).toHaveLength(1);
+    const session = [...s.sessions.keys()][0];
+    s.get({ action: "annuler", session });
+    const r = s.get(periode());
+    expect(r.memoire).toBe(true);
+    expect(r.occupations).toHaveLength(0);
+  });
+
+  it("la reservation relit l'agenda en direct, meme si la memoire le croit libre", () => {
+    const s = monter();
+    s.get(periode());
+    // Manon bloque un creneau a la main : la memoire ne le sait pas encore.
+    const debut = new Date(lundiProchain(9));
+    s.perso.push({
+      id: "planity1",
+      titre: "Rdv Planity",
+      debut,
+      fin: new Date(debut.getTime() + 3600000),
+      description: "",
+      tags: {},
+      cree: new Date(),
+      supprime: false,
+    });
+    expect(s.get(periode()).occupations).toHaveLength(0);
+    expect(
+      s.reserver({ ...CLIENTE, prestationId: "semi-permanent", debut: debut.toISOString() })
+    ).toEqual({ ok: false, raison: "pris" });
+  });
+
+  it("le menage recalcule la memoire", () => {
+    const s = monter();
+    s.get(periode());
+    const avant = JSON.parse(s.cache.get("occupations")!).calculeLe;
+    s.cache.set(
+      "occupations",
+      JSON.stringify({ ...JSON.parse(s.cache.get("occupations")!), calculeLe: "ancien" })
+    );
+    s.menage();
+    expect(JSON.parse(s.cache.get("occupations")!).calculeLe).not.toBe("ancien");
+    expect(avant).toBeTruthy();
   });
 });
 
