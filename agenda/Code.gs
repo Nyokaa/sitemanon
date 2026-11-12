@@ -497,9 +497,17 @@ function doPost(e) {
  */
 function menage() {
   var maintenant = new Date();
+  // On ne demande a Google que les creneaux en attente de paiement : relire
+  // chaque rendez-vous de l'agenda, un aller-retour chacun, rendait le
+  // passage d'autant plus long que Manon y recopie ses rendez-vous Planity.
+  // Filet : entre 4h et 5h, relecture complete. Si la recherche de Google
+  // ratait un jour un creneau en attente, il resterait bloque pour toujours
+  // sans que rien ne le dise ; ainsi il est libere au plus tard la nuit.
+  var complet = Utilities.formatDate(maintenant, FUSEAU, 'HH') === '04';
   var evenements = agenda_().getEvents(
     new Date(maintenant.getTime() - 86400000),
-    new Date(maintenant.getTime() + HORIZON_JOURS * 86400000)
+    new Date(maintenant.getTime() + HORIZON_JOURS * 86400000),
+    complet ? undefined : { search: PREFIXE_ATTENTE.replace(' · ', '') }
   );
   evenements.forEach(function (e) {
     if (e.getTag(TAG_STATUT) !== 'attente') return;
@@ -522,6 +530,46 @@ function menage() {
   // Recalculee a chaque passage : une visiteuse ne paie jamais le temps de
   // lecture de l'agenda.
   memoriser_();
+  surveillerDuree_(new Date() - maintenant);
+}
+
+// ------------------------------------------------------------- surveillance
+//
+// Google plafonne le temps quotidien des taches automatiques d'un compte
+// gratuit (environ 90 minutes). Le menage passe 144 fois par jour : au-dela
+// de SEUIL_MENAGE_MS par passage, on approche de la moitie du plafond. Si le
+// plafond etait atteint, Google suspendrait le menage jusqu'au lendemain :
+// la memoire ne serait plus rafraichie et les creneaux non payes ne seraient
+// plus liberes, sans que rien ne le signale. D'ou un mail, un par jour au
+// plus, a l'adresse de la propriete ALERTE_MAIL (celle du compte a defaut).
+
+var SEUIL_MENAGE_MS = 20000;
+
+function surveillerDuree_(dureeMs) {
+  var proprietes = PropertiesService.getScriptProperties();
+  proprietes.setProperty('MENAGE_DUREE_MS', String(dureeMs));
+  if (dureeMs <= SEUIL_MENAGE_MS) return;
+
+  var jour = Utilities.formatDate(new Date(), FUSEAU, 'yyyy-MM-dd');
+  if (proprietes.getProperty('ALERTE_ENVOYEE_LE') === jour) return;
+
+  var parJourMin = Math.round((dureeMs * 144) / 60000);
+  MailApp.sendEmail({
+    to: proprietes.getProperty('ALERTE_MAIL') || CalendarApp.getDefaultCalendar().getId(),
+    subject: 'Réservation Manon : le ménage du script devient lent',
+    body: [
+      'Le dernier passage du ménage a pris ' + Math.round(dureeMs / 1000) + ' secondes.',
+      'À ce rythme, environ ' + parJourMin + ' minutes par jour, pour un plafond Google d\'environ 90 minutes.',
+      '',
+      'Si le plafond est atteint, Google suspend le ménage jusqu\'au lendemain : les',
+      'disponibilités affichées ne sont plus rafraîchies et les créneaux non payés',
+      'ne sont plus libérés. Les réservations, elles, restent justes.',
+      '',
+      'À faire : passer le ménage à 15 ou 30 minutes dans installer(), ou réduire',
+      'la période lue. Ce mail part une fois par jour au plus.',
+    ].join('\n'),
+  });
+  proprietes.setProperty('ALERTE_ENVOYEE_LE', jour);
 }
 
 /** A lancer une fois a la main : installe le declencheur du menage. */

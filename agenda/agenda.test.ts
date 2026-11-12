@@ -21,6 +21,8 @@ type Evt = {
   supprime: boolean;
 };
 
+let heureForcee: string | null = null;
+
 function formatDate(d: Date, _fuseau: string, motif: string): string {
   const p = Object.fromEntries(
     new Intl.DateTimeFormat("en-GB", {
@@ -36,6 +38,7 @@ function formatDate(d: Date, _fuseau: string, motif: string): string {
       .map((x) => [x.type, x.value])
   );
   if (motif === "yyyy-MM-dd") return `${p.year}-${p.month}-${p.day}`;
+  if (motif === "HH") return heureForcee ?? p.hour;
   return `${p.day}/${p.month}/${p.year} à ${p.hour}h${p.minute}`;
 }
 
@@ -46,6 +49,8 @@ function monter() {
   const sessions = new Map<string, Record<string, unknown>>();
   let stripeEnPanne = false;
   const cache = new Map<string, string>();
+  const proprietes = new Map<string, string>([["STRIPE_SECRET", "sk_test_faux"]]);
+  const recherches: string[] = [];
   let n = 0;
 
   const versEvenement = (e: Evt) => ({
@@ -71,10 +76,13 @@ function monter() {
   };
   const agenda = {
     getId: () => "rdv-presta@group.calendar.google.com",
-    getEvents: (debut: Date, fin: Date) =>
-      evenements
+    getEvents: (debut: Date, fin: Date, o?: { search?: string }) => {
+      if (o) recherches.push(o.search ?? "");
+      return evenements
         .filter((e) => !e.supprime && e.debut < fin && debut < e.fin)
-        .map(versEvenement),
+        .filter((e) => !o?.search || e.titre.includes(o.search))
+        .map(versEvenement);
+    },
     getEventById: (id: string) => {
       const e = evenements.find((x) => x.id === id && !x.supprime);
       return e ? versEvenement(e) : null;
@@ -120,7 +128,10 @@ function monter() {
       }),
     },
     PropertiesService: {
-      getScriptProperties: () => ({ getProperty: () => "sk_test_faux" }),
+      getScriptProperties: () => ({
+        getProperty: (k: string) => (proprietes.has(k) ? proprietes.get(k)! : null),
+        setProperty: (k: string, v: string) => proprietes.set(k, v),
+      }),
     },
     Utilities: { formatDate },
     MailApp: { sendEmail: (m: { to: string; subject: string }) => mails.push(m) },
@@ -177,6 +188,8 @@ function monter() {
 
   return {
     cache,
+    proprietes,
+    recherches,
     contexte,
     evenements,
     perso,
@@ -482,6 +495,52 @@ describe("memoire des disponibilites", () => {
     s.menage();
     expect(JSON.parse(s.cache.get("occupations")!).calculeLe).not.toBe("ancien");
     expect(avant).toBeTruthy();
+  });
+});
+
+describe("menage allege et surveille", () => {
+  it("ne demande a Google que les creneaux en attente, et ignore les autres rendez-vous", () => {
+    const s = monter();
+    s.reserver({ ...CLIENTE, prestationId: "semi-permanent", debut: lundiProchain(9) });
+    const session = [...s.sessions.keys()][0];
+    s.sessions.get(session)!.status = "expired";
+    heureForcee = "12";
+    try {
+      s.menage();
+    } finally {
+      heureForcee = null;
+    }
+    expect(s.recherches).toEqual(["En attente de paiement"]);
+    expect(s.evenements[0].supprime).toBe(true);
+  });
+
+  it("entre 4h et 5h, le menage relit tout l'agenda, sans recherche", () => {
+    const s = monter();
+    heureForcee = "04";
+    try {
+      s.menage();
+    } finally {
+      heureForcee = null;
+    }
+    expect(s.recherches).toEqual([]);
+  });
+
+  it("un menage lent envoie une alerte a ALERTE_MAIL, une seule fois par jour", () => {
+    const s = monter();
+    s.proprietes.set("ALERTE_MAIL", "anthony@exemple.fr");
+    s.contexte.SEUIL_MENAGE_MS = -1;
+    s.menage();
+    s.menage();
+    expect(s.mails).toHaveLength(1);
+    expect(s.mails[0].to).toBe("anthony@exemple.fr");
+    expect(s.mails[0].subject).toContain("lent");
+  });
+
+  it("un menage rapide n'envoie rien, mais note sa duree", () => {
+    const s = monter();
+    s.menage();
+    expect(s.mails).toHaveLength(0);
+    expect(s.proprietes.has("MENAGE_DUREE_MS")).toBe(true);
   });
 });
 
