@@ -83,8 +83,12 @@ export default function MentionsLegales() {
                 Instagram) pour mesurer l&apos;efficacité de nos publicités :
                 pages consultées, prestation choisie et prise de rendez-vous,
                 avec son montant. Ces informations sont transmises à Meta
-                Platforms Ireland Ltd. Vos nom, téléphone et email ne lui sont
-                jamais transmis.
+                Platforms Ireland Ltd. Lorsque vous réservez, le pixel transmet
+                aussi vos nom, téléphone et email sous forme chiffrée
+                (hachage), pour permettre à Meta de relier la réservation à
+                une publicité vue sur Facebook ou Instagram. Meta ne reçoit pas
+                ces informations en clair. Rien de tout cela n&apos;est
+                transmis si vous refusez les cookies.
               </p>
               <p className="mt-3 leading-relaxed">
                 Lors d&apos;une réservation en ligne, vos coordonnées sont
