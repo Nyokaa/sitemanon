@@ -303,19 +303,6 @@ export const PRESTATIONS: Prestation[] = [
     prixCents: 2000,
     options: [],
   },
-  {
-    // Paiement d'essai : 50 centimes, le minimum que Stripe accepte en euros.
-    // Cachee de la liste, invisible pour le pixel. Adresse :
-    // /reserver/?prestation=test-paiement
-    id: "test-paiement",
-    categorie: "mains",
-    nom: "Test de paiement",
-    description: "Prestation d'essai, réservée aux tests internes. Ne pas utiliser.",
-    dureeMin: 15,
-    prixCents: 50,
-    options: [],
-    cachee: true,
-  },
 ];
 
 /**
