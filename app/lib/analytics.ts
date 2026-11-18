@@ -11,6 +11,19 @@ export const GOOGLE_ADS_ID = "AW-18205554627";
 export const EVENEMENT_GTAG_PRET = "mj-gtag-pret";
 export const META_PIXEL_ID = "1635263904032770";
 
+/**
+ * Les seuls domaines ou GA4, Google Ads et le pixel Meta se chargent. Sur
+ * localhost, un apercu ou tout autre domaine, aucune balise : des tests
+ * locaux ont deja envoye de faux achats dans GA4 le 18 novembre 2026.
+ * La meme liste est recopiee dans public/consentement.js, un test verifie
+ * qu'elles concordent.
+ */
+export const DOMAINES_AUTORISES = ["manonjeanpert.com", "www.manonjeanpert.com"];
+
+export function domaineAutorise(hostname: string): boolean {
+  return DOMAINES_AUTORISES.includes(hostname);
+}
+
 export const CONSENT_KEY = "mj-cookie-consent";
 export type Consent = "accepted" | "refused";
 

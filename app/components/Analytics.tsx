@@ -11,6 +11,7 @@ import {
   GA_MEASUREMENT_ID,
   GOOGLE_ADS_ID,
   META_PIXEL_ID,
+  domaineAutorise,
   getStoredConsent,
 } from "@/app/lib/analytics";
 
@@ -18,9 +19,13 @@ const RESET_EVENT = "mj-cookie-reset";
 
 export function Analytics() {
   const [consent, setConsent] = useState<Consent | null | "loading">("loading");
+  // Faux tant que le domaine n'est pas verifie : rien ne se charge au rendu
+  // statique, ni sur localhost ou un autre domaine.
+  const [domaineOk, setDomaineOk] = useState(false);
 
   useEffect(() => {
     setConsent(getStoredConsent());
+    setDomaineOk(domaineAutorise(window.location.hostname));
 
     const onReset = () => setConsent(null);
     window.addEventListener(RESET_EVENT, onReset);
@@ -63,7 +68,7 @@ export function Analytics() {
 
   return (
     <>
-      {consent === "accepted" ? (
+      {consent === "accepted" && domaineOk ? (
         <>
           <Script
             src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`}

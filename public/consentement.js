@@ -11,6 +11,9 @@
  * elle refuse.
  */
 (function () {
+  // Les seuls domaines ou le pixel se charge, comme DOMAINES_AUTORISES dans
+  // app/lib/analytics.ts : sur localhost ou ailleurs, aucune balise.
+  var DOMAINES = ['manonjeanpert.com', 'www.manonjeanpert.com'];
   var CLE = 'mj-cookie-consent';
   var PIXEL = '1635263904032770';
   var enAttente = [];
@@ -33,6 +36,7 @@
 
   function chargerPixel() {
     if (charge) return;
+    if (DOMAINES.indexOf(window.location.hostname) === -1) return;
     charge = true;
     !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
     n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
