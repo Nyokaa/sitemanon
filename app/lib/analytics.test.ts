@@ -33,7 +33,9 @@ describe("trackEvent", () => {
     const appels: unknown[][] = [];
     fenetre.gtag = (...a) => appels.push(a);
     trackEvent("booking_click", { source: "footer" });
-    expect(appels).toEqual([["event", "booking_click", { source: "footer" }]]);
+    expect(appels).toEqual([
+      ["event", "booking_click", { source: "footer", send_to: "G-N032H9NZ3E" }],
+    ]);
   });
 
   it("met en attente avant gtag, puis envoie dans l'ordre quand gtag est pret", async () => {
@@ -49,6 +51,14 @@ describe("trackEvent", () => {
     // Une seule fois : un second signal ne renvoie rien.
     fenetre.emettre(EVENEMENT_GTAG_PRET);
     expect(appels).toHaveLength(2);
+  });
+
+  it("n'adresse les evenements qu'a GA4, jamais a la balise Google Ads", async () => {
+    const { trackEvent, GA_MEASUREMENT_ID } = await import("./analytics");
+    const appels: unknown[][] = [];
+    fenetre.gtag = (...a) => appels.push(a);
+    trackEvent("booking_confirmed", { value: 70 });
+    expect((appels[0][2] as { send_to: string }).send_to).toBe(GA_MEASUREMENT_ID);
   });
 
   it("n'envoie jamais rien si gtag ne se charge pas (cookies refuses)", async () => {

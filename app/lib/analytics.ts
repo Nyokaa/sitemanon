@@ -31,8 +31,12 @@ export function trackEvent(
   params: Record<string, unknown> = {}
 ): void {
   if (typeof window === "undefined") return;
-  if (window.gtag) window.gtag("event", name, params);
-  else enAttente.push([name, params]);
+  // send_to limite l'evenement a GA4. Sans lui, gtag l'envoie aussi a la
+  // balise Google Ads configuree a cote ; or les conversions Ads doivent
+  // rester importees depuis GA4, jamais envoyees directement.
+  const avecDestination = { ...params, send_to: GA_MEASUREMENT_ID };
+  if (window.gtag) window.gtag("event", name, avecDestination);
+  else enAttente.push([name, avecDestination]);
 }
 
 if (typeof window !== "undefined") {

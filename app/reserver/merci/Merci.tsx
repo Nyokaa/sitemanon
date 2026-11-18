@@ -7,6 +7,7 @@ import { trackEvent, trackPixel } from "@/app/lib/analytics";
 import { AGENDA_URL } from "../config";
 import { formaterPrix } from "../catalogue";
 import { FUSEAU } from "../creneaux";
+import { estPaiementDeTest } from "../suivi";
 
 type Etat =
   | { etat: "chargement" }
@@ -37,6 +38,9 @@ function quand(iso: string): string {
  * sert d'eventID, ce qui permet a Meta de dedoublonner de son cote aussi.
  */
 function envoyerAchat(session: string, montantCents: number, service: string) {
+  // Session Stripe en mode test : ni booking_confirmed, ni purchase, ni
+  // Purchase. Les paiements reels (cs_live_) ne sont pas concernes.
+  if (estPaiementDeTest(session)) return;
   // Paiement d'essai : rien vers Meta ni Analytics.
   try {
     if (window.sessionStorage.getItem("mj-paiement-essai")) return;
