@@ -2,8 +2,9 @@
 
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { SITE } from "@/app/lib/site";
+import Link from "next/link";
 import { trackEvent } from "@/app/lib/analytics";
+import { RESERVER_URL } from "@/app/components/BookingButton";
 
 export function MobileStickyCta() {
   const [visible, setVisible] = useState(false);
@@ -28,10 +29,8 @@ export function MobileStickyCta() {
           transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
           className="fixed bottom-3 left-20 right-3 z-40 lg:hidden"
         >
-          <a
-            href={SITE.planityUrl}
-            target="_blank"
-            rel="noopener noreferrer"
+          <Link
+            href={RESERVER_URL}
             onClick={() => trackEvent("booking_click", { source: "mobile_sticky" })}
             className="flex items-center justify-center gap-2 rounded-full bg-[var(--color-ink)] px-6 py-4 text-sm font-medium tracking-wide text-[var(--color-bg-soft)] shadow-[0_15px_30px_-10px_rgba(44,58,46,0.55)] transition-all active:scale-[0.98]"
           >
@@ -47,9 +46,9 @@ export function MobileStickyCta() {
               strokeLinejoin="round"
               aria-hidden
             >
-              <path d="M7 17L17 7M17 7H8M17 7V16" />
+              <path d="M5 12h14M13 6l6 6-6 6" />
             </svg>
-          </a>
+          </Link>
         </motion.div>
       ) : null}
     </AnimatePresence>
