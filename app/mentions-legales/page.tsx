@@ -79,6 +79,13 @@ export default function MentionsLegales() {
                 sont anonymisées (IP tronquée) et conservées 14 mois maximum.
               </p>
               <p className="mt-3 leading-relaxed">
+                Il utilise aussi la balise <strong>Google Ads</strong>, qui
+                dépose un cookie pour savoir si vous êtes arrivé sur le site
+                depuis une publicité Google et mesurer les prises de
+                rendez-vous qui en découlent. Ces informations sont transmises
+                à Google Ireland Ltd.
+              </p>
+              <p className="mt-3 leading-relaxed">
                 Il utilise aussi le <strong>pixel Meta</strong> (Facebook,
                 Instagram) pour mesurer l&apos;efficacité de nos publicités :
                 pages consultées, prestation choisie et prise de rendez-vous,

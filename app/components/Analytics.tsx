@@ -7,7 +7,9 @@ import { AnimatePresence, motion } from "framer-motion";
 import {
   CONSENT_KEY,
   Consent,
+  EVENEMENT_GTAG_PRET,
   GA_MEASUREMENT_ID,
+  GOOGLE_ADS_ID,
   META_PIXEL_ID,
   getStoredConsent,
 } from "@/app/lib/analytics";
@@ -39,8 +41,24 @@ export function Analytics() {
   }, [pathname, consent]);
 
   const persist = (value: Consent) => {
+    // On regarde les balises reellement chargees, pas le choix enregistre :
+    // « Gerer les cookies » efface ce choix avant de rouvrir la banniere.
+    const balisesChargees =
+      typeof window.gtag === "function" || typeof window.fbq === "function";
     window.localStorage.setItem(CONSENT_KEY, value);
     setConsent(value);
+    // Retrait d'un consentement deja donne : les balises chargees ne se
+    // dechargent pas seules. On previent Google, puis on recharge la page,
+    // qui repart sans GA4, sans Google Ads et sans pixel.
+    if (value === "refused" && balisesChargees) {
+      window.gtag?.("consent", "update", {
+        ad_storage: "denied",
+        analytics_storage: "denied",
+        ad_user_data: "denied",
+        ad_personalization: "denied",
+      });
+      window.location.reload();
+    }
   };
 
   return (
@@ -56,11 +74,21 @@ export function Analytics() {
               window.dataLayer = window.dataLayer || [];
               function gtag(){dataLayer.push(arguments);}
               window.gtag = gtag;
-              gtag('js', new Date());
-              gtag('config', '${GA_MEASUREMENT_ID}', {
-                anonymize_ip: true,
-                page_path: window.location.pathname
+              // Consent Mode v2, mode de base : ce script ne se charge
+              // qu'apres « Accepter », donc le consentement est accorde.
+              gtag('consent', 'default', {
+                ad_storage: 'granted',
+                analytics_storage: 'granted',
+                ad_user_data: 'granted',
+                ad_personalization: 'granted'
               });
+              gtag('js', new Date());
+              gtag('config', '${GA_MEASUREMENT_ID}');
+              // Google Ads : configuration seule (relais de conversion,
+              // cookie _gcl_aw). Les conversions restent importees de GA4.
+              gtag('config', '${GOOGLE_ADS_ID}');
+              // Libere les evenements emis avant le chargement de gtag.
+              window.dispatchEvent(new Event('${EVENEMENT_GTAG_PRET}'));
             `}
           </Script>
           <Script id="meta-pixel" strategy="afterInteractive">
@@ -100,9 +128,9 @@ export function Analytics() {
               className="mt-2 text-sm leading-relaxed text-[var(--color-ink-soft)]/85"
             >
               Ce site utilise Google Analytics pour comprendre ce qui intéresse
-              les visiteurs, et le pixel Meta pour mesurer l&apos;efficacité de
-              nos publicités Facebook et Instagram. Ces deux outils ne se
-              chargent que si vous acceptez.{" "}
+              les visiteurs, ainsi que Google Ads et le pixel Meta pour mesurer
+              l&apos;efficacité de nos publicités Google, Facebook et
+              Instagram. Ces outils ne se chargent que si vous acceptez.{" "}
               <a
                 href="/mentions-legales"
                 className="underline underline-offset-2 hover:text-[var(--color-ink)]"

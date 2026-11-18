@@ -6,6 +6,9 @@ declare global {
 }
 
 export const GA_MEASUREMENT_ID = "G-N032H9NZ3E";
+export const GOOGLE_ADS_ID = "AW-18205554627";
+/** Emis par le script d'initialisation de gtag, une fois gtag pret. */
+export const EVENEMENT_GTAG_PRET = "mj-gtag-pret";
 export const META_PIXEL_ID = "1635263904032770";
 
 export const CONSENT_KEY = "mj-cookie-consent";
@@ -17,12 +20,28 @@ export function getStoredConsent(): Consent | null {
   return v === "accepted" || v === "refused" ? v : null;
 }
 
+// Evenements emis avant que gtag soit charge : un clic juste apres
+// « Accepter », ou une conversion sur une page ou les cookies sont acceptes
+// apres coup. Ils partent des que gtag est pret. Si la visiteuse refuse,
+// gtag ne se charge jamais et rien ne part.
+const enAttente: [string, Record<string, unknown>][] = [];
+
 export function trackEvent(
   name: string,
-  params?: Record<string, unknown>
+  params: Record<string, unknown> = {}
 ): void {
   if (typeof window === "undefined") return;
-  window.gtag?.("event", name, params ?? {});
+  if (window.gtag) window.gtag("event", name, params);
+  else enAttente.push([name, params]);
+}
+
+if (typeof window !== "undefined") {
+  window.addEventListener(EVENEMENT_GTAG_PRET, () => {
+    while (enAttente.length) {
+      const [n, p] = enAttente.shift()!;
+      window.gtag?.("event", n, p);
+    }
+  });
 }
 
 /**

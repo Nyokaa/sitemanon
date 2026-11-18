@@ -36,7 +36,7 @@ function quand(iso: string): string {
  * la page ne doit pas compter deux ventes. Et l'identifiant de la session
  * sert d'eventID, ce qui permet a Meta de dedoublonner de son cote aussi.
  */
-function envoyerAchat(session: string, montantCents: number) {
+function envoyerAchat(session: string, montantCents: number, service: string) {
   // Paiement d'essai : rien vers Meta ni Analytics.
   try {
     if (window.sessionStorage.getItem("mj-paiement-essai")) return;
@@ -46,8 +46,19 @@ function envoyerAchat(session: string, montantCents: number) {
     if (window.localStorage.getItem(cle)) return;
     window.localStorage.setItem(cle, "1");
   } catch {}
-  trackEvent("purchase", { value: montantCents / 100, currency: "EUR", transaction_id: session });
-  trackPixel("Purchase", { value: montantCents / 100, currency: "EUR" }, { eventID: session });
+  const valeur = montantCents / 100;
+  // Part uniquement ici : apres que le script a relu le paiement chez Stripe
+  // et repondu « paye ». Jamais au chargement de /reserver, jamais en erreur,
+  // et une seule fois grace au marqueur ci-dessus. Si gtag n'est pas encore
+  // charge, trackEvent le met en attente au lieu de le perdre.
+  trackEvent("booking_confirmed", {
+    value: valeur,
+    currency: "EUR",
+    transaction_id: session, // identifiant Stripe unique du rendez-vous
+    service,
+  });
+  trackEvent("purchase", { value: valeur, currency: "EUR", transaction_id: session });
+  trackPixel("Purchase", { value: valeur, currency: "EUR" }, { eventID: session });
 }
 
 export function Merci() {
@@ -62,7 +73,7 @@ export function Merci() {
         if (!json.ok) return setEtat({ etat: "erreur" });
         if (json.statut !== "paye") return setEtat({ etat: "non_paye" });
         setEtat({ etat: "paye", ...json });
-        envoyerAchat(id, json.montantCents);
+        envoyerAchat(id, json.montantCents, json.prestation);
       })
       .catch(() => setEtat({ etat: "erreur" }));
   };

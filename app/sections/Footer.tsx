@@ -1,6 +1,9 @@
+"use client";
+
 import { Container } from "@/app/components/Container";
 import { CookieResetLink } from "@/app/components/CookieResetLink";
 import { SITE } from "@/app/lib/site";
+import { trackEvent } from "@/app/lib/analytics";
 
 export function Footer() {
   return (
@@ -43,6 +46,7 @@ export function Footer() {
                 href={SITE.planityUrl}
                 target="_blank"
                 rel="noopener noreferrer"
+                onClick={() => trackEvent("booking_click", { source: "footer" })}
                 className="hover:text-[var(--color-ink)]"
               >
                 Prendre rendez-vous
