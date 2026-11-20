@@ -76,9 +76,9 @@ function idRelance(): string {
 export const CONDITIONS_URL = "/conditions-reservation/";
 
 const PHOTOS = [
-  { src: "/images/reserver/nude.webp", alt: "Pose semi-permanente nude, amande longue" },
-  { src: "/images/reserver/ecaille.webp", alt: "Manucure écaille caramel et feuilles d'or" },
-  { src: "/images/reserver/rallongement.webp", alt: "Rallongement gel pastel" },
+  { src: "/images/reserver/paillettes.webp", alt: "Pose gel rose pailleté, amande longue" },
+  { src: "/images/reserver/noir.webp", alt: "Semi-permanent noir brillant, ongles courts" },
+  { src: "/images/reserver/nail-art.webp", alt: "Nail art rouge, étoiles et motif vache" },
 ];
 
 const champ =
