@@ -54,7 +54,7 @@ function formatDate(d: Date, _fuseau: string, motif: string): string {
 
 function monter() {
   const evenements: Evt[] = [];
-  const mails: { to: string; subject: string }[] = [];
+  const mails: { to: string; subject: string; body?: string }[] = [];
   const appelsStripe: { methode: string; chemin: string; champs?: Record<string, string> }[] = [];
   const sessions = new Map<string, Record<string, unknown>>();
   let stripeEnPanne = false;
@@ -143,10 +143,12 @@ function monter() {
       getScriptProperties: () => ({
         getProperty: (k: string) => (proprietes.has(k) ? proprietes.get(k)! : null),
         setProperty: (k: string, v: string) => proprietes.set(k, v),
+        deleteProperty: (k: string) => proprietes.delete(k),
+        getProperties: () => Object.fromEntries(proprietes),
       }),
     },
     Utilities: { formatDate },
-    MailApp: { sendEmail: (m: { to: string; subject: string }) => mails.push(m) },
+    MailApp: { sendEmail: (m: { to: string; subject: string; body?: string }) => mails.push(m) },
     UrlFetchApp: {
       fetch: (url: string, o?: { method: string; payload?: Record<string, string> }) => {
         if (url.endsWith("/reserver/catalogue.json")) {
@@ -227,6 +229,19 @@ function monter() {
     get: (parametres: Record<string, string>) => appeler("doGet", { parameter: parametres }),
     menage: () => appeler("menage"),
     acompte: (catalogue: unknown, total: number) => appeler("acompte_", catalogue, total),
+    relances: () =>
+      [...proprietes.entries()]
+        .filter(([k]) => k.startsWith("relance_"))
+        .map(([, v]) => JSON.parse(v)),
+    vieillirRelances: (minutes: number) => {
+      for (const [k, v] of proprietes) {
+        if (!k.startsWith("relance_")) continue;
+        const r = JSON.parse(v);
+        r.maj -= minutes * 60000;
+        r.cree -= minutes * 60000;
+        proprietes.set(k, JSON.stringify(r));
+      }
+    },
   };
 }
 
@@ -290,7 +305,7 @@ describe("reserver", () => {
     // Acompte de 50 % de 80 euros, calcule sur le catalogue : 40 euros.
     expect(creation.champs!["line_items[0][price_data][unit_amount]"]).toBe("4000");
     expect(creation.champs!["metadata[total_cents]"]).toBe("8000");
-    expect(r).toMatchObject({ montantCents: 4000, totalCents: 8000, version: 2 });
+    expect(r).toMatchObject({ montantCents: 4000, totalCents: 8000, version: 3 });
     // Et la duree bloquee dans l'agenda est celle du catalogue : 1h30 + 20 min.
     const e = s.evenements[0];
     expect((e.fin.getTime() - e.debut.getTime()) / 60000).toBe(110);
@@ -692,5 +707,134 @@ describe("GA4 cote serveur (Measurement Protocol)", () => {
     expect(r.ok).toBe(true);
     expect(r.ga_serveur).toBe(false);
     expect(s.get({ action: "confirmer", session }).statut).toBe("paye");
+  });
+});
+
+describe("relances des reservations non finalisees", () => {
+  const ID = "a1b2c3d4-e5f6-4789-9abc-def012345678";
+  const partiel = (extra: Record<string, unknown> = {}) => ({
+    action: "relance",
+    relanceId: ID,
+    prenom: "Léa",
+    nom: "Martin",
+    telephone: "06 00 00 00 00",
+    email: "",
+    prestationId: "semi-permanent",
+    optionIds: ["french"],
+    debut: lundiProchain(9),
+    ...extra,
+  });
+
+  it("une saisie partielle n'ouvre jamais de paiement ni ne bloque de creneau", () => {
+    const s = monter();
+    const r = s.reserver(partiel());
+    expect(r).toMatchObject({ ok: true, enregistre: true, version: 3 });
+    expect(s.appelsStripe).toHaveLength(0);
+    expect(s.evenements).toHaveLength(0);
+    expect(s.relances()[0]).toMatchObject({
+      etape: "coordonnees",
+      telephone: "06 00 00 00 00",
+      prestation: "Semi-permanent + French",
+      totalCents: 8000,
+    });
+  });
+
+  it("exige un telephone ou un email valide", () => {
+    const s = monter();
+    expect(s.reserver(partiel({ telephone: "06", email: "pas-un-mail" })).enregistre).toBe(false);
+    expect(s.reserver(partiel({ relanceId: "x" })).enregistre).toBe(false);
+    expect(s.relances()).toHaveLength(0);
+  });
+
+  it("complete la meme entree au lieu d'en creer une seconde", () => {
+    const s = monter();
+    s.reserver(partiel());
+    s.reserver(partiel({ email: "lea@exemple.fr" }));
+    expect(s.relances()).toHaveLength(1);
+    expect(s.relances()[0]).toMatchObject({ telephone: "06 00 00 00 00", email: "lea@exemple.fr" });
+  });
+
+  it("un seul mail 30 minutes apres la derniere saisie, a Manon et aux adresses de RELANCE_MAILS", () => {
+    const s = monter();
+    s.proprietes.set("RELANCE_MAILS", "anthony@exemple.fr");
+    s.reserver(partiel());
+    s.vieillirRelances(29);
+    s.menage();
+    expect(s.mails).toHaveLength(0);
+    s.vieillirRelances(2);
+    s.menage();
+    s.menage();
+    expect(s.mails).toHaveLength(1);
+    expect(s.mails[0].to).toBe("manon@exemple.fr,anthony@exemple.fr");
+    expect(s.mails[0].subject).toContain("Réservation non finalisée : Léa Martin");
+    expect(s.mails[0].body).toContain("06 00 00 00 00");
+    expect(s.mails[0].body).toContain("Semi-permanent + French");
+    expect(s.mails[0].body).toContain("coordonnées saisies");
+  });
+
+  it("le clic sur payer note l'acompte, et une page Stripe ouverte attend son expiration", () => {
+    const s = monter();
+    s.reserver(partiel());
+    const r = s.reserver({ ...CLIENTE, relanceId: ID, prestationId: "semi-permanent", optionIds: ["french"], debut: lundiProchain(9) });
+    expect(r.ok).toBe(true);
+    expect(s.relances()[0]).toMatchObject({ etape: "stripe", acompteCents: 4000 });
+    const session = [...s.sessions.keys()][0];
+    s.vieillirRelances(40);
+    s.menage();
+    expect(s.mails).toHaveLength(0); // session encore ouverte
+    s.sessions.get(session)!.status = "expired";
+    s.menage();
+    const relance = s.mails.filter((m) => m.subject.startsWith("Réservation non finalisée"));
+    expect(relance).toHaveLength(1);
+    expect(relance[0].body).toContain("acompte 40 €");
+    expect(relance[0].body).toContain("page de paiement Stripe ouverte");
+  });
+
+  it("aucune relance si la reservation est confirmee, et la demande est effacee", () => {
+    const s = monter();
+    s.reserver(partiel());
+    s.reserver({ ...CLIENTE, relanceId: ID, prestationId: "semi-permanent", debut: lundiProchain(9) });
+    const session = [...s.sessions.keys()][0];
+    s.sessions.get(session)!.payment_status = "paid";
+    s.get({ action: "confirmer", session });
+    s.vieillirRelances(60);
+    s.menage();
+    expect(s.mails.filter((m) => m.subject.startsWith("Réservation non finalisée"))).toHaveLength(0);
+    expect(s.relances()).toHaveLength(0);
+  });
+
+  it("un creneau pris au clic sur payer est quand meme signale", () => {
+    const s = monter();
+    s.reserver({ ...CLIENTE, prestationId: "semi-permanent", debut: lundiProchain(9) });
+    const r = s.reserver({ ...CLIENTE, relanceId: ID, prestationId: "semi-permanent", debut: lundiProchain(9) });
+    expect(r.raison).toBe("pris");
+    expect(s.relances()[0].etape).toBe("paiement");
+  });
+
+  it("supprime toute demande au bout de 30 jours, signalee ou non", () => {
+    const s = monter();
+    s.reserver(partiel());
+    s.vieillirRelances(31);
+    s.menage();
+    expect(s.relances()).toHaveLength(1); // signalee, gardee
+    s.vieillirRelances(30 * 24 * 60);
+    s.menage();
+    expect(s.relances()).toHaveLength(0);
+  });
+
+  it("n'envoie aucune donnee de la demande a GA4", () => {
+    const s = monter();
+    s.proprietes.set("GA4_API_SECRET", "secret-test");
+    s.reserver(partiel({ email: "lea@exemple.fr" }));
+    s.reserver({
+      ...CLIENTE,
+      relanceId: ID,
+      prestationId: "semi-permanent",
+      debut: lundiProchain(9),
+      ga_client_id: "123.456",
+      ga_session_id: "789",
+    });
+    const tout = JSON.stringify(s.envoisGa4);
+    expect(tout).not.toMatch(/lea@exemple|0600000000|06 00 00|Léa|Martin|Test/);
   });
 });

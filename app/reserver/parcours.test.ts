@@ -52,3 +52,27 @@ describe("acompteCents", () => {
     expect(formaterPrix(acompteCents(9500))).toBe("47,50 €");
   });
 });
+
+describe("relance : telephone ou email valide", () => {
+  it("reconnait les formats de telephone courants", async () => {
+    const { telephoneValide } = await import("./parcours");
+    for (const t of ["0600000000", "06 00 00 00 00", "+33 6 00 00 00 00", "06.00.00.00.00"]) {
+      expect(telephoneValide(t), t).toBe(true);
+    }
+    for (const t of ["06", "06 00 00", "abc0600000000", ""]) expect(telephoneValide(t), t).toBe(false);
+  });
+
+  it("exige l'un des deux pour garder la saisie", async () => {
+    const { relanceUtile } = await import("./parcours");
+    expect(relanceUtile("", "lea@exemple.fr")).toBe(true);
+    expect(relanceUtile(" 06 00 00 00 00 ", "")).toBe(true);
+    expect(relanceUtile("06", "lea@")).toBe(false);
+  });
+
+  it("applique les memes regles que le script", async () => {
+    const fs = await import("node:fs");
+    const code = fs.readFileSync(new URL("../../agenda/Code.gs", import.meta.url), "utf8");
+    expect(code).toContain("/^[+\\d\\s.\\-()]+$/.test(t) && t.replace(/\\D/g, '').length >= 9");
+    expect(code).toContain("/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(e)");
+  });
+});

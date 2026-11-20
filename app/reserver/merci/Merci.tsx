@@ -91,6 +91,11 @@ export function Merci() {
         if (!json.ok) return setEtat({ etat: "erreur" });
         if (json.statut !== "paye") return setEtat({ etat: "non_paye" });
         setEtat({ etat: "paye", ...json });
+        // Reservation confirmee : la prochaine demande repartira d'un nouvel
+        // identifiant (le script a deja efface celle-ci).
+        try {
+          window.sessionStorage.removeItem("mj-relance-id");
+        } catch {}
         // Ancien script : pas de totalCents, le montant encaisse est le total.
         envoyerAchat(
           id,

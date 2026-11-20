@@ -58,7 +58,10 @@ var ATTENTE_PAIEMENT_MIN = 30;
 // script en ligne sait l'encaisser (version 2 et plus) : tant que l'ancien
 // script tourne, la page garde l'affichage du paiement complet, et le montant
 // annonce reste toujours celui reellement encaisse.
-var VERSION_SCRIPT = 2;
+//   2 : acompte. 3 : relances des reservations non finalisees. Le site
+//   n'envoie de saisie partielle qu'a un script en version 3 : une version
+//   plus ancienne la prendrait pour une vraie reservation.
+var VERSION_SCRIPT = 3;
 
 // GA4 : envoi serveur (Measurement Protocol) de begin_checkout et de
 // booking_confirmed. La cle secrete vit dans la propriete GA4_API_SECRET.
@@ -371,6 +374,9 @@ function evenementDeSession_(session) {
  * menage peuvent y arriver tous les deux, un seul mail part.
  */
 function marquerPaye_(e, session) {
+  // Reservation confirmee : jamais de relance, et plus aucune raison de
+  // garder la demande non finalisee.
+  supprimerRelance_(idRelance_(session.metadata && session.metadata.relance));
   if (e.getTag(TAG_STATUT) === 'paye') return;
   e.setTag(TAG_STATUT, 'paye');
   e.setTitle(PREFIXE_PAYE + e.getTitle().replace(PREFIXE_ATTENTE, ''));
@@ -418,6 +424,201 @@ function liberer_(e) {
   e.deleteEvent();
   retoucherMemoire_(debut, fin, false);
   return true;
+}
+
+// -------------------------------------------------------------- relances
+//
+// Reservations non finalisees. Le site envoie ce que la visiteuse a rempli a
+// l'etape 3 des qu'un telephone ou un email valide est saisi, puis a chaque
+// complement, et au clic sur « Payer l'acompte ». Si aucun paiement n'est
+// confirme 30 minutes apres la derniere saisie (ou a l'expiration de la
+// session Stripe), UN seul mail part a Manon et aux adresses de la propriete
+// RELANCE_MAILS. Rien si la reservation est confirmee : l'entree est alors
+// supprimee. Tout est supprime au bout de 30 jours.
+//
+// Stockage : les proprietes du script, une entree par demande
+// (relance_<id>). Ces donnees ne partent jamais vers GA4 ni Meta.
+
+var PREFIXE_RELANCE = 'relance_';
+var RELANCE_ATTENTE_MIN = 30;
+var RELANCE_CONSERVATION_JOURS = 30;
+var ETAPES_RELANCE = {
+  coordonnees: { rang: 1, texte: "coordonnées saisies à l'étape 3, sans cliquer sur « Payer l'acompte »" },
+  paiement: { rang: 2, texte: "clic sur « Payer l'acompte », mais le paiement n'a pas pu s'ouvrir (créneau pris entre-temps ou erreur)" },
+  stripe: { rang: 3, texte: 'page de paiement Stripe ouverte, paiement jamais finalisé' },
+};
+
+function idRelance_(v) {
+  var id = texte_(v, 60);
+  return /^[A-Za-z0-9-]{8,60}$/.test(id) ? id : null;
+}
+
+function telephoneValide_(t) {
+  return /^[+\d\s.\-()]+$/.test(t) && t.replace(/\D/g, '').length >= 9;
+}
+
+function emailValide_(e) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e);
+}
+
+function lireRelance_(id) {
+  var t = PropertiesService.getScriptProperties().getProperty(PREFIXE_RELANCE + id);
+  if (!t) return null;
+  try {
+    return JSON.parse(t);
+  } catch (err) {
+    return null;
+  }
+}
+
+function ecrireRelance_(r) {
+  PropertiesService.getScriptProperties().setProperty(PREFIXE_RELANCE + r.id, JSON.stringify(r));
+}
+
+function supprimerRelance_(id) {
+  if (id) PropertiesService.getScriptProperties().deleteProperty(PREFIXE_RELANCE + id);
+}
+
+/**
+ * Enregistre ou complete une demande non finalisee. Exige un telephone ou un
+ * email valide. Une demande deja signalee n'est plus modifiee : le mail est
+ * parti, un second ne partirait pas. Rend true si l'entree est ecrite.
+ */
+function noterRelance_(corps, etape, extra) {
+  var id = idRelance_(corps.relanceId);
+  if (!id || !ETAPES_RELANCE[etape]) return false;
+  var tel = texte_(corps.telephone, 40);
+  var email = texte_(corps.email, 160);
+  var telOk = telephoneValide_(tel);
+  var emailOk = emailValide_(email);
+  var r = lireRelance_(id) || { id: id, cree: Date.now() };
+  if (r.notifie) return false;
+  if (!telOk && !emailOk && !r.telephone && !r.email) return false;
+
+  r.maj = Date.now();
+  var prenom = texte_(corps.prenom, 80);
+  if (prenom) {
+    r.prenom = prenom;
+    r.nom = texte_(corps.nom, 80);
+  }
+  if (telOk) r.telephone = tel;
+  if (emailOk) r.email = email;
+  var debut = date_(corps.debut);
+  if (debut) r.debut = debut.toISOString();
+  if (!r.etape || ETAPES_RELANCE[etape].rang >= ETAPES_RELANCE[r.etape].rang) r.etape = etape;
+
+  extra = extra || {};
+  var panier = extra.panier;
+  if (!panier && corps.prestationId) {
+    try {
+      panier = panier_(
+        catalogue_(),
+        texte_(corps.prestationId, 80),
+        corps.optionIds,
+        debut ? Utilities.formatDate(debut, FUSEAU, 'yyyy-MM-dd') : null
+      );
+    } catch (err) {
+      console.error(err);
+    }
+  }
+  if (panier) {
+    r.prestation =
+      panier.prestation.nom +
+      (panier.options.length ? ' + ' + panier.options.map(function (o) { return o.nom; }).join(', ') : '');
+    r.totalCents = panier.totalCents;
+  }
+  if (extra.acompteCents) r.acompteCents = extra.acompteCents;
+  if (extra.session) r.session = extra.session;
+  ecrireRelance_(r);
+  return true;
+}
+
+function destinatairesRelance_() {
+  var liste = [MAIL_MANON || CalendarApp.getDefaultCalendar().getId()];
+  var autres = PropertiesService.getScriptProperties().getProperty('RELANCE_MAILS') || '';
+  autres.split(',').forEach(function (a) {
+    a = a.trim();
+    if (emailValide_(a) && liste.indexOf(a) === -1) liste.push(a);
+  });
+  return liste;
+}
+
+function envoyerRelance_(r) {
+  var nom = [r.prenom, r.nom].filter(Boolean).join(' ') || '(nom non saisi)';
+  var quand = r.debut ? Utilities.formatDate(new Date(r.debut), FUSEAU, "dd/MM/yyyy 'à' HH'h'mm") : '';
+  var lignes = [
+    'Une réservation a été commencée sur manonjeanpert.com sans être finalisée.',
+    '',
+    'Étape atteinte : ' + ETAPES_RELANCE[r.etape].texte,
+    'Prénom et nom : ' + nom,
+    'Téléphone : ' + (r.telephone || '(non saisi)'),
+    'Email : ' + (r.email || '(non saisi)'),
+    'Prestation : ' + (r.prestation || '(inconnue)'),
+    'Créneau choisi : ' + (quand ? quand + ' (non bloqué dans l\'agenda)' : '(inconnu)'),
+  ];
+  if (r.totalCents) {
+    lignes.push('Prix : ' + prix_(r.totalCents) + (r.acompteCents ? ' · acompte ' + prix_(r.acompteCents) : ''));
+  }
+  lignes.push(
+    'Dernière saisie : ' + Utilities.formatDate(new Date(r.maj), FUSEAU, "dd/MM/yyyy 'à' HH'h'mm"),
+    '',
+    'Ces informations servent uniquement à recontacter cette personne au sujet de sa demande.',
+    'Elles seront supprimées automatiquement le ' +
+      Utilities.formatDate(new Date(r.cree + RELANCE_CONSERVATION_JOURS * 86400000), FUSEAU, 'dd/MM/yyyy') + '.'
+  );
+  MailApp.sendEmail({
+    to: destinatairesRelance_().join(','),
+    subject: 'Réservation non finalisée : ' + nom + (quand ? ', ' + quand : ''),
+    body: lignes.join('\n'),
+  });
+}
+
+/**
+ * Appele par le menage : supprime ce qui a plus de 30 jours, et signale une
+ * seule fois chaque demande sans paiement 30 minutes apres la derniere
+ * saisie, ou a l'expiration de sa session Stripe.
+ */
+function traiterRelances_(maintenant) {
+  var toutes = PropertiesService.getScriptProperties().getProperties();
+  Object.keys(toutes).forEach(function (cle) {
+    if (cle.indexOf(PREFIXE_RELANCE) !== 0) return;
+    var id = cle.slice(PREFIXE_RELANCE.length);
+    var r;
+    try {
+      r = JSON.parse(toutes[cle]);
+    } catch (err) {
+      supprimerRelance_(id);
+      return;
+    }
+    if (maintenant.getTime() - r.cree > RELANCE_CONSERVATION_JOURS * 86400000) {
+      supprimerRelance_(id);
+      return;
+    }
+    if (r.notifie) return;
+    var echu = maintenant.getTime() - r.maj >= RELANCE_ATTENTE_MIN * 60000;
+    if (r.session) {
+      try {
+        var session = stripe_('get', '/checkout/sessions/' + r.session);
+        if (session.payment_status === 'paid') {
+          supprimerRelance_(id);
+          return;
+        }
+        // Tant que la page de paiement est ouverte, on attend son expiration.
+        echu = session.status === 'expired';
+      } catch (err) {
+        console.error(err);
+        return;
+      }
+    }
+    if (!echu) return;
+    try {
+      envoyerRelance_(r);
+      r.notifie = Date.now();
+      ecrireRelance_(r);
+    } catch (err) {
+      console.error(err);
+    }
+  });
 }
 
 // ---------------------------------------------------------------- portes
@@ -497,6 +698,12 @@ function doPost(e) {
     return json_({ ok: false, erreur: 'corps illisible' });
   }
 
+  // Saisie partielle a l'etape 3 : on la garde, rien d'autre. Jamais de
+  // creneau bloque, jamais de paiement ouvert.
+  if (corps.action === 'relance') {
+    return json_({ ok: true, version: VERSION_SCRIPT, enregistre: noterRelance_(corps, 'coordonnees') });
+  }
+
   var debut = date_(corps.debut);
   var prenom = texte_(corps.prenom, 80);
   var nom = texte_(corps.nom, 80);
@@ -526,6 +733,9 @@ function doPost(e) {
   // Calcule ici, jamais depuis le navigateur.
   var acompteCents = acompte_(catalogue, panier.totalCents);
   var resteCents = panier.totalCents - acompteCents;
+  // Clic sur « Payer l'acompte » : la demande est notee avant de tenter la
+  // reservation, pour qu'un creneau pris ou une erreur soit aussi signale.
+  noterRelance_(corps, 'paiement', { panier: panier, acompteCents: acompteCents });
   var fin = new Date(debut.getTime() + panier.dureeMin * 60000);
   var libelle =
     panier.prestation.nom +
@@ -594,6 +804,7 @@ function doPost(e) {
         'metadata[acompte_cents]': String(acompteCents),
         'metadata[ga_client_id]': ga ? ga.clientId : '',
         'metadata[ga_session_id]': ga ? ga.sessionId : '',
+        'metadata[relance]': idRelance_(corps.relanceId) || '',
       });
     } catch (err) {
       // Sans paiement ouvert, le creneau ne doit pas rester bloque.
@@ -604,6 +815,7 @@ function doPost(e) {
     }
 
     evenement.setTag(TAG_SESSION, session.id);
+    noterRelance_(corps, 'stripe', { session: session.id, panier: panier, acompteCents: acompteCents });
   } finally {
     verrou.releaseLock();
   }
@@ -674,6 +886,7 @@ function menage() {
   // Recalculee a chaque passage : une visiteuse ne paie jamais le temps de
   // lecture de l'agenda.
   memoriser_();
+  traiterRelances_(maintenant);
   surveillerDuree_(new Date() - maintenant);
 }
 

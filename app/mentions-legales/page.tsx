@@ -71,6 +71,20 @@ export default function MentionsLegales() {
 
             <section>
               <h2 className="font-serif text-2xl text-[var(--color-ink)]">
+                Données personnelles
+              </h2>
+              <p className="mt-2 leading-relaxed">
+                Les données traitées lors d&apos;une réservation, y compris une
+                réservation commencée mais non finalisée, sont décrites dans la{" "}
+                <a href="/confidentialite/" className="underline underline-offset-2">
+                  politique de confidentialité
+                </a>
+                .
+              </p>
+            </section>
+
+            <section>
+              <h2 className="font-serif text-2xl text-[var(--color-ink)]">
                 Cookies & mesure d&apos;audience
               </h2>
               <p className="mt-2 leading-relaxed">

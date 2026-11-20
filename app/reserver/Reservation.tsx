@@ -32,7 +32,7 @@ import {
   heureParis,
   joursOuverts,
 } from "./creneaux";
-import { premierCreneau, separerNom, separerPhares } from "./parcours";
+import { premierCreneau, relanceUtile, separerNom, separerPhares } from "./parcours";
 
 type Etape = "prestation" | "creneau" | "coordonnees";
 
@@ -47,6 +47,31 @@ type Agenda =
  * pour que le montant annonce soit toujours celui reellement encaisse.
  */
 const VERSION_ACOMPTE = 2;
+
+/**
+ * Version du script qui sait garder une saisie partielle. Une version plus
+ * ancienne prendrait l'envoi pour une vraie reservation (creneau bloque,
+ * paiement ouvert) : rien n'est envoye tant que le script n'y est pas.
+ */
+const VERSION_RELANCE = 3;
+
+/** Identifiant de la demande en cours, garde le temps de la session. */
+const CLE_RELANCE = "mj-relance-id";
+
+function idRelance(): string {
+  try {
+    const existant = window.sessionStorage.getItem(CLE_RELANCE);
+    if (existant) return existant;
+  } catch {}
+  const id =
+    typeof crypto !== "undefined" && "randomUUID" in crypto
+      ? crypto.randomUUID()
+      : `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 12)}`;
+  try {
+    window.sessionStorage.setItem(CLE_RELANCE, id);
+  } catch {}
+  return id;
+}
 
 export const CONDITIONS_URL = "/conditions-reservation/";
 
@@ -120,6 +145,8 @@ export function Reservation() {
   const continuerRef = useRef<HTMLButtonElement>(null);
 
   const acompteActif = (versionScript ?? 0) >= VERSION_ACOMPTE;
+  const relanceActive = (versionScript ?? 0) >= VERSION_RELANCE;
+  const derniereRelance = useRef("");
 
   // Une publicite peut pointer sur une prestation : /reserver/?prestation=semi-permanent
   useEffect(() => {
@@ -309,6 +336,36 @@ export function Reservation() {
   const basculerOption = (id: string) =>
     setOptionIds((ids) => (ids.includes(id) ? ids.filter((x) => x !== id) : [...ids, id]));
 
+  // Saisie partielle a l'etape 3, a la sortie d'un champ : gardee par le
+  // script pour recontacter la visiteuse si elle ne finalise pas. Rien ne
+  // part vers GA4, Google Ads ni Meta ; rien sans telephone ou email valide ;
+  // rien deux fois de suite a l'identique.
+  const noterSaisie = () => {
+    if (!relanceActive || !panier || !creneau || panier.prestation.cachee) return;
+    if (!relanceUtile(form.telephone, form.email)) return;
+    const { prenom, nom } = separerNom(form.nomComplet);
+    const corps = {
+      action: "relance",
+      relanceId: idRelance(),
+      prenom,
+      nom,
+      telephone: form.telephone.trim(),
+      email: form.email.trim(),
+      prestationId: panier.prestation.id,
+      optionIds: panier.options.map((o) => o.id),
+      debut: creneau.debut.toISOString(),
+    };
+    const signature = JSON.stringify(corps);
+    if (signature === derniereRelance.current) return;
+    derniereRelance.current = signature;
+    fetch(AGENDA_URL, {
+      method: "POST",
+      headers: { "Content-Type": "text/plain;charset=utf-8" },
+      body: signature,
+      keepalive: true,
+    }).catch(() => {});
+  };
+
   const confirmer = async () => {
     if (!panier || !creneau) return;
     setEnvoi("en-cours");
@@ -346,6 +403,9 @@ export function Reservation() {
           message: form.message,
           ga_client_id: ga?.clientId ?? "",
           ga_session_id: ga?.sessionId ?? "",
+          // La meme demande : le script la complete (clic sur payer, page
+          // Stripe ouverte) et l'efface si le paiement est confirme.
+          relanceId: relanceActive && !panier.prestation.cachee ? idRelance() : "",
         }),
       });
       const json = await r.json();
@@ -794,6 +854,7 @@ export function Reservation() {
               placeholder="Prénom et nom"
               value={form.nomComplet}
               onChange={(e) => setForm({ ...form, nomComplet: e.target.value })}
+              onBlur={noterSaisie}
               // L'ancien script exige un nom : tant qu'il tourne, deux mots.
               pattern={acompteActif ? undefined : "\\s*\\S+\\s+\\S.*"}
               title={acompteActif ? undefined : "Indiquez votre prénom et votre nom"}
@@ -806,6 +867,7 @@ export function Reservation() {
               placeholder="Téléphone"
               value={form.telephone}
               onChange={(e) => setForm({ ...form, telephone: e.target.value })}
+              onBlur={noterSaisie}
               className={champ}
             />
             <input
@@ -815,6 +877,7 @@ export function Reservation() {
               placeholder="Email"
               value={form.email}
               onChange={(e) => setForm({ ...form, email: e.target.value })}
+              onBlur={noterSaisie}
               className={champ}
             />
           </div>

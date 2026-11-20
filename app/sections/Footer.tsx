@@ -90,6 +90,9 @@ export function Footer() {
         <p>© {new Date().getFullYear()} Manon Jeanpert · Tous droits réservés</p>
         <div className="flex items-center gap-5">
           <CookieResetLink />
+          <a href="/confidentialite/" className="hover:text-[var(--color-ink)]">
+            Confidentialité
+          </a>
           <a href="/mentions-legales" className="hover:text-[var(--color-ink)]">
             Mentions légales
           </a>

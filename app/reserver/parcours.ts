@@ -38,3 +38,21 @@ export function separerPhares(
   const ids = new Set(enTete.map((p) => p.id));
   return { phares: enTete, autres: prestations.filter((p) => !ids.has(p.id)) };
 }
+
+// ------------------------------------------------------------ relances
+//
+// Memes regles que telephoneValide_ et emailValide_ dans agenda/Code.gs : le
+// site n'envoie une saisie partielle que si le script la gardera.
+
+export function telephoneValide(t: string): boolean {
+  return /^[+\d\s.\-()]+$/.test(t) && t.replace(/\D/g, "").length >= 9;
+}
+
+export function emailValide(e: string): boolean {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e);
+}
+
+/** Vrai si la saisie merite d'etre gardee : un telephone ou un email valide. */
+export function relanceUtile(telephone: string, email: string): boolean {
+  return telephoneValide(telephone.trim()) || emailValide(email.trim());
+}

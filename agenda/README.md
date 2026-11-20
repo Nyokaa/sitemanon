@@ -104,6 +104,21 @@ Protocol**, **Créer**. Copier la valeur dans les propriétés du script, sous l
 nom `GA4_API_SECRET`. Sans cette propriété, rien ne part du serveur et le site
 continue d'envoyer ces événements comme avant.
 
+## Relances des réservations non finalisées (version 3 du script)
+
+- Le site envoie la saisie de l'étape 3 (`action: relance`) dès qu'un
+  téléphone ou un email valide est rempli, à la sortie du champ, puis à
+  chaque complément, et la réservation porte le même identifiant.
+- Le script garde chaque demande dans les propriétés du script
+  (`relance_<id>`). Si aucun paiement n'est confirmé 30 minutes après la
+  dernière saisie (ou à l'expiration de la session Stripe), le ménage envoie
+  **un seul** mail à Manon et aux adresses de la propriété `RELANCE_MAILS`
+  (séparées par des virgules). Une réservation confirmée efface la demande.
+  Tout est supprimé au bout de 30 jours.
+- Le site n'envoie rien à un script de version inférieure à 3, qui prendrait
+  la saisie pour une vraie réservation.
+- Ces données ne partent jamais vers GA4, Google Ads ni Meta.
+
 ## Modifier le script ensuite
 
 Une modification de `Code.gs` ne prend effet qu'après « Déployer »,

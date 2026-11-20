@@ -38,6 +38,19 @@ export default function ReserverPage() {
           <Reservation />
         </Container>
       </main>
+      <footer className="border-t border-[var(--color-line)] py-6 text-xs text-[var(--color-ink)]/55">
+        <Container className="flex flex-wrap gap-x-5 gap-y-2">
+          <Link href="/conditions-reservation/" className="hover:text-[var(--color-ink)]">
+            Conditions de réservation
+          </Link>
+          <Link href="/confidentialite/" className="hover:text-[var(--color-ink)]">
+            Confidentialité
+          </Link>
+          <Link href="/mentions-legales/" className="hover:text-[var(--color-ink)]">
+            Mentions légales
+          </Link>
+        </Container>
+      </footer>
     </>
   );
 }
