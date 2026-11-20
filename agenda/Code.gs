@@ -54,6 +54,16 @@ var HORIZON_JOURS = 62;
 // Stripe impose au moins 30 minutes a une session de paiement.
 var ATTENTE_PAIEMENT_MIN = 30;
 
+// Annoncee au site dans chaque reponse. Le site n'affiche l'acompte que si le
+// script en ligne sait l'encaisser (version 2 et plus) : tant que l'ancien
+// script tourne, la page garde l'affichage du paiement complet, et le montant
+// annonce reste toujours celui reellement encaisse.
+var VERSION_SCRIPT = 2;
+
+// GA4 : envoi serveur (Measurement Protocol) de begin_checkout et de
+// booking_confirmed. La cle secrete vit dans la propriete GA4_API_SECRET.
+var GA4_ID = 'G-N032H9NZ3E';
+
 var TAG_SESSION = 'stripe_session';
 var TAG_STATUT = 'statut';
 var PREFIXE_ATTENTE = 'En attente de paiement · ';
@@ -134,6 +144,76 @@ function panier_(catalogue, prestationId, optionIds, dateRdv) {
     total += o.prixCents;
   });
   return { prestation: prestation, options: options, dureeMin: duree, totalCents: total };
+}
+
+/**
+ * L'acompte encaisse en ligne, en centimes : le taux vient du catalogue
+ * publie par le site (tauxAcompte), jamais du navigateur. Meme regle que
+ * acompteCents dans app/reserver/catalogue.ts, un test verifie qu'elles
+ * concordent. Un taux absent ou invalide vaut 1 : on n'encaisse jamais moins
+ * que ce que le site annonce par erreur, et le site n'annonce l'acompte
+ * qu'avec ce script.
+ */
+function acompte_(catalogue, totalCents) {
+  var t = Number(catalogue && catalogue.tauxAcompte);
+  if (!(t > 0 && t <= 1)) t = 1;
+  return Math.round(totalCents * t);
+}
+
+// ------------------------------------------------------------------ GA4
+
+/** Identifiants GA4 transmis par le site, ou null s'ils sont absents ou mal formes. */
+function idsGa4_(clientId, sessionId) {
+  var c = texte_(clientId, 60);
+  var s = texte_(sessionId, 30);
+  if (!/^\d+\.\d+$/.test(c) || !/^\d+$/.test(s)) return null;
+  return { clientId: c, sessionId: s };
+}
+
+function secretGa4_() {
+  return PropertiesService.getScriptProperties().getProperty('GA4_API_SECRET') || '';
+}
+
+/**
+ * Envoie des evenements a GA4 depuis le serveur (Measurement Protocol),
+ * rattaches a la session de la visiteuse par son client_id et son
+ * session_id. Le site ne transmet ces identifiants que si elle a accepte
+ * les cookies : sans eux, rien ne part. Ne fait jamais echouer une
+ * reservation : une erreur est journalisee et rend false.
+ */
+function envoyerGa4_(ids, evenements) {
+  var secret = secretGa4_();
+  if (!ids || !secret) return false;
+  try {
+    var r = UrlFetchApp.fetch(
+      'https://www.google-analytics.com/mp/collect?measurement_id=' + GA4_ID +
+        '&api_secret=' + encodeURIComponent(secret),
+      {
+        method: 'post',
+        contentType: 'application/json',
+        muteHttpExceptions: true,
+        payload: JSON.stringify({
+          client_id: ids.clientId,
+          consent: { ad_user_data: 'GRANTED', ad_personalization: 'GRANTED' },
+          events: evenements.map(function (ev) {
+            var params = { session_id: ids.sessionId, engagement_time_msec: 1 };
+            for (var k in ev.params) params[k] = ev.params[k];
+            return { name: ev.name, params: params };
+          }),
+        }),
+      }
+    );
+    return r.getResponseCode() < 300;
+  } catch (err) {
+    console.error(err);
+    return false;
+  }
+}
+
+/** Vrai si GA4 recoit (ou a recu) les conversions de cette session par le serveur. */
+function ga4Serveur_(session) {
+  var m = (session && session.metadata) || {};
+  return Boolean(secretGa4_() && idsGa4_(m.ga_client_id, m.ga_session_id));
 }
 
 // ---------------------------------------------------------------- Stripe
@@ -294,13 +374,36 @@ function marquerPaye_(e, session) {
   if (e.getTag(TAG_STATUT) === 'paye') return;
   e.setTag(TAG_STATUT, 'paye');
   e.setTitle(PREFIXE_PAYE + e.getTitle().replace(PREFIXE_ATTENTE, ''));
-  var paye = prix_(session.amount_total) + ' payé en ligne (Stripe ' + session.id + ')';
+  var m = session.metadata || {};
+  var totalCents = Number(m.total_cents) || session.amount_total;
+  var reste = totalCents - session.amount_total;
+  var paye =
+    (reste > 0 ? 'acompte de ' : '') + prix_(session.amount_total) +
+    ' payé en ligne (Stripe ' + session.id + ')' +
+    (reste > 0 ? ', reste ' + prix_(reste) + ' à régler au studio' : '');
   e.setDescription(e.getDescription().replace('Paiement : en attente', 'Paiement : ' + paye));
+
+  // Conversion envoyee par le serveur, une seule fois (on ne repasse jamais
+  // ici pour un rendez-vous deja paye), meme si la cliente a ferme l'onglet :
+  // c'est alors le menage qui arrive ici.
+  var ids = idsGa4_(m.ga_client_id, m.ga_session_id);
+  var params = {
+    value: totalCents / 100,
+    currency: 'EUR',
+    transaction_id: session.id,
+    acompte: session.amount_total / 100,
+  };
+  var avecService = { service: m.prestation || '' };
+  for (var k in params) avecService[k] = params[k];
+  envoyerGa4_(ids, [
+    { name: 'booking_confirmed', params: avecService },
+    { name: 'purchase', params: params },
+  ]);
 
   var quand = Utilities.formatDate(e.getStartTime(), FUSEAU, "dd/MM/yyyy 'à' HH'h'mm");
   MailApp.sendEmail({
     to: MAIL_MANON || CalendarApp.getDefaultCalendar().getId(),
-    subject: 'Nouveau rendez-vous payé : ' + quand,
+    subject: 'Nouveau rendez-vous (acompte payé) : ' + quand,
     body:
       e.getDescription() +
       '\n\nPense à bloquer ce créneau sur Planity, puis à retirer « À recopier sur Planity » du titre dans ton agenda.',
@@ -344,6 +447,7 @@ function doGet(e) {
       source: memoire.source,
       memoire: depuisMemoire,
       calculeLe: memoire.calculeLe,
+      version: VERSION_SCRIPT,
     });
   }
 
@@ -361,7 +465,12 @@ function doGet(e) {
         return json_({
           ok: true,
           statut: 'paye',
+          version: VERSION_SCRIPT,
+          // montantCents : ce qui a ete encaisse (l'acompte) ; totalCents : le
+          // prix de la prestation, que GA4 et Meta recoivent comme valeur.
           montantCents: session.amount_total,
+          totalCents: Number(session.metadata.total_cents) || session.amount_total,
+          ga_serveur: ga4Serveur_(session),
           prestation: session.metadata.prestation,
           debut: session.metadata.debut,
           prenom: session.metadata.prenom,
@@ -400,7 +509,10 @@ function doPost(e) {
   if (debut.getTime() > Date.now() + HORIZON_JOURS * 86400000) {
     return json_({ ok: false, erreur: 'creneau trop lointain' });
   }
-  if (!prenom || !nom || !telephone) return json_({ ok: false, erreur: 'champ manquant' });
+  // Le site n'a plus qu'un champ « Prenom et nom » : le nom peut manquer.
+  if (!prenom || !telephone) return json_({ ok: false, erreur: 'champ manquant' });
+  var cliente = prenom + (nom ? ' ' + nom : '');
+  var ga = idsGa4_(corps.ga_client_id, corps.ga_session_id);
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
     return json_({ ok: false, erreur: 'email invalide' });
   }
@@ -408,8 +520,12 @@ function doPost(e) {
   // Le prix et la duree se recalculent ici, depuis le catalogue publie :
   // le navigateur ne dit que ce qui a ete choisi, jamais ce que ca coute.
   var dateRdv = Utilities.formatDate(debut, FUSEAU, 'yyyy-MM-dd');
-  var panier = panier_(catalogue_(), texte_(corps.prestationId, 80), corps.optionIds, dateRdv);
+  var catalogue = catalogue_();
+  var panier = panier_(catalogue, texte_(corps.prestationId, 80), corps.optionIds, dateRdv);
   if (!panier) return json_({ ok: false, erreur: 'prestation inconnue' });
+  // Calcule ici, jamais depuis le navigateur.
+  var acompteCents = acompte_(catalogue, panier.totalCents);
+  var resteCents = panier.totalCents - acompteCents;
   var fin = new Date(debut.getTime() + panier.dureeMin * 60000);
   var libelle =
     panier.prestation.nom +
@@ -430,9 +546,11 @@ function doPost(e) {
       '',
       'Prestation : ' + libelle,
       'Total : ' + prix_(panier.totalCents),
+      resteCents > 0 ? 'Acompte : ' + prix_(acompteCents) : '',
+      resteCents > 0 ? 'Reste à régler au studio : ' + prix_(resteCents) : '',
       'Paiement : en attente',
       '',
-      'Cliente : ' + prenom + ' ' + nom,
+      'Cliente : ' + cliente,
       'Téléphone : ' + telephone,
       'Email : ' + email,
       message ? '\nMessage :\n' + message : '',
@@ -443,7 +561,7 @@ function doPost(e) {
     // Le creneau est bloque AVANT le paiement : une seconde cliente ne peut
     // pas payer la meme place pendant que la premiere tape sa carte.
     var evenement = agenda_().createEvent(
-      PREFIXE_ATTENTE + libelle + ' · ' + prenom + ' ' + nom,
+      PREFIXE_ATTENTE + libelle + ' · ' + cliente,
       debut,
       fin,
       { description: description }
@@ -459,10 +577,12 @@ function doPost(e) {
         customer_email: email,
         'line_items[0][quantity]': '1',
         'line_items[0][price_data][currency]': 'eur',
-        'line_items[0][price_data][unit_amount]': String(panier.totalCents),
-        'line_items[0][price_data][product_data][name]': libelle,
+        'line_items[0][price_data][unit_amount]': String(acompteCents),
+        'line_items[0][price_data][product_data][name]':
+          (resteCents > 0 ? 'Acompte · ' : '') + libelle,
         'line_items[0][price_data][product_data][description]':
-          'Rendez-vous le ' + Utilities.formatDate(debut, FUSEAU, "dd/MM/yyyy 'à' HH'h'mm"),
+          'Rendez-vous le ' + Utilities.formatDate(debut, FUSEAU, "dd/MM/yyyy 'à' HH'h'mm") +
+          (resteCents > 0 ? ' · reste ' + prix_(resteCents) + ' à régler au studio' : ''),
         expires_at: String(Math.floor(Date.now() / 1000) + (ATTENTE_PAIEMENT_MIN + 1) * 60),
         success_url: SITE_URL + '/reserver/merci/?session={CHECKOUT_SESSION_ID}',
         cancel_url: SITE_URL + '/reserver/?annule={CHECKOUT_SESSION_ID}',
@@ -470,6 +590,10 @@ function doPost(e) {
         'metadata[prestation]': libelle,
         'metadata[debut]': debut.toISOString(),
         'metadata[prenom]': prenom,
+        'metadata[total_cents]': String(panier.totalCents),
+        'metadata[acompte_cents]': String(acompteCents),
+        'metadata[ga_client_id]': ga ? ga.clientId : '',
+        'metadata[ga_session_id]': ga ? ga.sessionId : '',
       });
     } catch (err) {
       // Sans paiement ouvert, le creneau ne doit pas rester bloque.
@@ -480,10 +604,30 @@ function doPost(e) {
     }
 
     evenement.setTag(TAG_SESSION, session.id);
-    return json_({ ok: true, url: session.url, montantCents: panier.totalCents });
   } finally {
     verrou.releaseLock();
   }
+
+  // Hors du verrou : l'envoi a GA4 ne doit pas retarder une autre cliente.
+  var gaServeur = envoyerGa4_(ga, [
+    {
+      name: 'begin_checkout',
+      params: {
+        value: panier.totalCents / 100,
+        currency: 'EUR',
+        acompte: acompteCents / 100,
+        prestation: panier.prestation.id,
+      },
+    },
+  ]);
+  return json_({
+    ok: true,
+    version: VERSION_SCRIPT,
+    url: session.url,
+    montantCents: acompteCents,
+    totalCents: panier.totalCents,
+    ga_serveur: gaServeur,
+  });
 }
 
 // ---------------------------------------------------------------- menage

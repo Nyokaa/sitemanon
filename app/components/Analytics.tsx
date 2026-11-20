@@ -17,6 +17,9 @@ import {
 
 const RESET_EVENT = "mj-cookie-reset";
 
+const BOUTON_COOKIES =
+  "rounded-full border border-[var(--color-ink)]/40 px-5 py-2 text-sm font-medium text-[var(--color-ink)] transition-colors hover:border-[var(--color-ink)] hover:bg-[var(--color-ink)]/5";
+
 export function Analytics() {
   const [consent, setConsent] = useState<Consent | null | "loading">("loading");
   // Faux tant que le domaine n'est pas verifie : rien ne se charge au rendu
@@ -118,47 +121,50 @@ export function Analytics() {
             exit={{ y: 100, opacity: 0 }}
             transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
             role="dialog"
-            aria-labelledby="cookie-title"
+            aria-label="Vos cookies, votre choix"
             aria-describedby="cookie-desc"
-            className="fixed inset-x-3 bottom-3 z-50 mx-auto max-w-2xl rounded-2xl border border-[var(--color-line)] bg-[var(--color-bg)] p-5 shadow-[0_25px_50px_-15px_rgba(44,58,46,0.45)] md:bottom-5 md:p-6"
+            // Bandeau bas compact : sur mobile, une ligne de texte et une
+            // ligne de boutons, pour ne plus masquer la page a l'arrivee.
+            className="fixed inset-x-0 bottom-0 z-50 border-t border-[var(--color-line)] bg-[var(--color-bg)] px-4 py-3 shadow-[0_-12px_30px_-18px_rgba(44,58,46,0.45)] md:inset-x-3 md:bottom-5 md:mx-auto md:max-w-3xl md:rounded-2xl md:border md:px-6 md:py-4"
           >
-            <p
-              id="cookie-title"
-              className="font-serif text-base text-[var(--color-ink)] md:text-lg"
-            >
-              Vos cookies, votre choix
-            </p>
-            <p
-              id="cookie-desc"
-              className="mt-2 text-sm leading-relaxed text-[var(--color-ink-soft)]/85"
-            >
-              Ce site utilise Google Analytics pour comprendre ce qui intéresse
-              les visiteurs, ainsi que Google Ads et le pixel Meta pour mesurer
-              l&apos;efficacité de nos publicités Google, Facebook et
-              Instagram. Ces outils ne se chargent que si vous acceptez.{" "}
-              <a
-                href="/mentions-legales"
-                className="underline underline-offset-2 hover:text-[var(--color-ink)]"
+            <div className="flex flex-col gap-2.5 md:flex-row md:items-center md:gap-6">
+              <p
+                id="cookie-desc"
+                className="text-xs leading-snug text-[var(--color-ink-soft)]/90 md:flex-1 md:text-sm md:leading-relaxed"
               >
-                En savoir plus
-              </a>
-              .
-            </p>
-            <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-end">
-              <button
-                type="button"
-                onClick={() => persist("refused")}
-                className="rounded-full border border-[var(--color-ink)]/25 px-5 py-2.5 text-sm text-[var(--color-ink)]/85 transition-colors hover:border-[var(--color-ink)] hover:bg-[var(--color-ink)]/5"
-              >
-                Refuser
-              </button>
-              <button
-                type="button"
-                onClick={() => persist("accepted")}
-                className="rounded-full bg-[var(--color-ink)] px-5 py-2.5 text-sm font-medium text-[var(--color-bg-soft)] transition-colors hover:bg-[var(--color-ink-soft)]"
-              >
-                Accepter
-              </button>
+                <span className="md:hidden">
+                  Mesure d&apos;audience et de nos pubs (Google, Meta), seulement si vous acceptez.
+                </span>
+                <span className="hidden md:inline">
+                  Ce site utilise Google Analytics pour comprendre ce qui intéresse
+                  les visiteurs, ainsi que Google Ads et le pixel Meta pour mesurer
+                  l&apos;efficacité de nos publicités Google, Facebook et
+                  Instagram. Ces outils ne se chargent que si vous acceptez.
+                </span>{" "}
+                <a
+                  href="/mentions-legales"
+                  className="underline underline-offset-2 hover:text-[var(--color-ink)]"
+                >
+                  En savoir plus
+                </a>
+              </p>
+              {/* Les deux choix ont exactement la meme apparence. */}
+              <div className="grid shrink-0 grid-cols-2 gap-2 md:flex">
+                <button
+                  type="button"
+                  onClick={() => persist("refused")}
+                  className={BOUTON_COOKIES}
+                >
+                  Refuser
+                </button>
+                <button
+                  type="button"
+                  onClick={() => persist("accepted")}
+                  className={BOUTON_COOKIES}
+                >
+                  Accepter
+                </button>
+              </div>
             </div>
           </motion.aside>
         ) : null}

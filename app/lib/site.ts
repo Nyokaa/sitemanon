@@ -135,11 +135,11 @@ export const FAQ = [
   },
   {
     q: "Comment réserver ?",
-    a: "La réservation se fait en ligne 24h/24 sur Planity ou par téléphone au 06 81 80 59 56.",
+    a: "En ligne 24h/24 sur ce site, avec un acompte de 50 % (le reste au studio), sur Planity, ou par téléphone au 06 81 80 59 56.",
   },
   {
     q: "Quels moyens de paiement acceptez-vous ?",
-    a: "Le studio accepte les paiements en espèces et par carte bancaire.",
+    a: "Pour une réservation en ligne sur ce site, un acompte de 50 % est payé par carte bancaire, Apple Pay ou Google Pay ; il est déduit du prix de la prestation. Le reste se règle au studio, en espèces ou par carte bancaire. Report gratuit jusqu'à 48 h avant le rendez-vous ; en cas d'annulation, l'acompte n'est pas remboursé.",
   },
 ];
 

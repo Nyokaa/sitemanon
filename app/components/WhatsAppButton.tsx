@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { usePathname } from "next/navigation";
 import { SITE } from "@/app/lib/site";
 import { trackEvent } from "@/app/lib/analytics";
 
@@ -9,6 +10,10 @@ const url = `https://wa.me/${SITE.whatsappNumber}?text=${encodeURIComponent(
 )}`;
 
 export function WhatsAppButton() {
+  // Retiree du parcours de reservation : elle masquait du contenu (les
+  // heures, le recapitulatif) et detournait du paiement.
+  const pathname = usePathname();
+  if (pathname?.startsWith("/reserver")) return null;
   return (
     <motion.a
       initial={{ opacity: 0, scale: 0.6 }}

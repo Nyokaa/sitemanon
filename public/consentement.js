@@ -53,49 +53,43 @@
     else enAttente.push(fn);
   };
 
-  function bouton(texte, plein) {
+  // Les deux choix ont exactement la meme apparence.
+  function bouton(texte) {
     var b = document.createElement('button');
     b.type = 'button';
     b.textContent = texte;
     b.style.cssText =
-      'font:500 14px/1 "DM Sans",system-ui,sans-serif;padding:11px 20px;border-radius:999px;cursor:pointer;' +
-      (plein
-        ? 'background:#2B1A21;color:#F6EEEA;border:1px solid #2B1A21;'
-        : 'background:transparent;color:#2B1A21;border:1px solid rgba(43,26,33,.35);');
+      'font:500 14px/1 "DM Sans",system-ui,sans-serif;padding:10px 18px;border-radius:999px;cursor:pointer;' +
+      'background:transparent;color:#2B1A21;border:1px solid rgba(43,26,33,.45);';
     return b;
   }
 
+  // Bandeau bas compact : une ligne de texte, une ligne de boutons.
   function banniere() {
     var a = document.createElement('aside');
     a.setAttribute('role', 'dialog');
-    a.setAttribute('aria-labelledby', 'mj-cookie-titre');
+    a.setAttribute('aria-label', 'Vos cookies, votre choix');
     a.style.cssText =
-      'position:fixed;left:12px;right:12px;bottom:12px;z-index:9999;max-width:640px;margin:0 auto;' +
-      'background:#F6EEEA;color:#2B1A21;border:1px solid #E2D2CC;border-radius:16px;padding:18px 20px;' +
-      'box-shadow:0 25px 50px -15px rgba(43,26,33,.45);font:15px/1.5 "DM Sans",system-ui,sans-serif;';
-
-    var t = document.createElement('p');
-    t.id = 'mj-cookie-titre';
-    t.textContent = 'Vos cookies, votre choix';
-    t.style.cssText = 'margin:0;font:600 18px/1.2 "Cormorant Garamond",Georgia,serif;';
+      'position:fixed;left:0;right:0;bottom:0;z-index:9999;background:#F6EEEA;color:#2B1A21;' +
+      'border-top:1px solid #E2D2CC;padding:12px 16px;box-shadow:0 -12px 30px -18px rgba(43,26,33,.45);' +
+      'font:13px/1.4 "DM Sans",system-ui,sans-serif;';
 
     var d = document.createElement('p');
-    d.style.cssText = 'margin:8px 0 0;font-size:14px;color:#6E5A61;';
+    d.style.cssText = 'margin:0 auto;max-width:720px;color:#6E5A61;';
     d.appendChild(document.createTextNode(
-      'Ce site utilise le pixel Meta pour mesurer l’efficacité de nos publicités Facebook et Instagram. ' +
-      'Il ne se charge que si vous acceptez. '
+      'Mesure de nos publicit\u00e9s (pixel Meta), seulement si vous acceptez. '
     ));
     var l = document.createElement('a');
     l.href = '/mentions-legales/';
     l.textContent = 'En savoir plus';
     l.style.cssText = 'color:#7A2E4A;';
     d.appendChild(l);
-    d.appendChild(document.createTextNode('.'));
 
     var actions = document.createElement('div');
-    actions.style.cssText = 'margin-top:14px;display:flex;flex-wrap:wrap;gap:8px;justify-content:flex-end;';
-    var refuser = bouton('Refuser', false);
-    var accepter = bouton('Accepter', true);
+    actions.style.cssText =
+      'margin:10px auto 0;max-width:720px;display:grid;grid-template-columns:1fr 1fr;gap:8px;';
+    var refuser = bouton('Refuser');
+    var accepter = bouton('Accepter');
     refuser.addEventListener('click', function () {
       ecrire('refused');
       a.remove();
@@ -108,7 +102,6 @@
     actions.appendChild(refuser);
     actions.appendChild(accepter);
 
-    a.appendChild(t);
     a.appendChild(d);
     a.appendChild(actions);
     document.body.appendChild(a);

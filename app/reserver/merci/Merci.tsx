@@ -16,6 +16,7 @@ type Etat =
   | {
       etat: "paye";
       montantCents: number;
+      totalCents?: number;
       prestation: string;
       debut: string;
       prenom: string;
@@ -37,7 +38,13 @@ function quand(iso: string): string {
  * la page ne doit pas compter deux ventes. Et l'identifiant de la session
  * sert d'eventID, ce qui permet a Meta de dedoublonner de son cote aussi.
  */
-function envoyerAchat(session: string, montantCents: number, service: string) {
+function envoyerAchat(
+  session: string,
+  totalCents: number,
+  acompteCents: number,
+  service: string,
+  gaServeur: boolean
+) {
   // Session Stripe en mode test : ni booking_confirmed, ni purchase, ni
   // Purchase. Les paiements reels (cs_live_) ne sont pas concernes.
   if (estPaiementDeTest(session)) return;
@@ -50,19 +57,26 @@ function envoyerAchat(session: string, montantCents: number, service: string) {
     if (window.localStorage.getItem(cle)) return;
     window.localStorage.setItem(cle, "1");
   } catch {}
-  const valeur = montantCents / 100;
+  // Valeur = prix total de la prestation ; l'acompte encaisse en parametre.
+  const valeur = totalCents / 100;
+  const acompte = acompteCents / 100;
   // Part uniquement ici : apres que le script a relu le paiement chez Stripe
   // et repondu « paye ». Jamais au chargement de /reserver, jamais en erreur,
   // et une seule fois grace au marqueur ci-dessus. Si gtag n'est pas encore
   // charge, trackEvent le met en attente au lieu de le perdre.
-  trackEvent("booking_confirmed", {
-    value: valeur,
-    currency: "EUR",
-    transaction_id: session, // identifiant Stripe unique du rendez-vous
-    service,
-  });
-  trackEvent("purchase", { value: valeur, currency: "EUR", transaction_id: session });
-  trackPixel("Purchase", { value: valeur, currency: "EUR" }, { eventID: session });
+  // Quand le script envoie deja ces deux evenements a GA4 depuis le serveur
+  // (ga_serveur), le site ne les renvoie pas : ils compteraient deux fois.
+  if (!gaServeur) {
+    trackEvent("booking_confirmed", {
+      value: valeur,
+      currency: "EUR",
+      transaction_id: session, // identifiant Stripe unique du rendez-vous
+      service,
+      acompte,
+    });
+    trackEvent("purchase", { value: valeur, currency: "EUR", transaction_id: session, acompte });
+  }
+  trackPixel("Purchase", { value: valeur, currency: "EUR", acompte }, { eventID: session });
 }
 
 export function Merci() {
@@ -77,7 +91,14 @@ export function Merci() {
         if (!json.ok) return setEtat({ etat: "erreur" });
         if (json.statut !== "paye") return setEtat({ etat: "non_paye" });
         setEtat({ etat: "paye", ...json });
-        envoyerAchat(id, json.montantCents, json.prestation);
+        // Ancien script : pas de totalCents, le montant encaisse est le total.
+        envoyerAchat(
+          id,
+          json.totalCents ?? json.montantCents,
+          json.montantCents,
+          json.prestation,
+          Boolean(json.ga_serveur)
+        );
       })
       .catch(() => setEtat({ etat: "erreur" }));
   };
@@ -97,6 +118,7 @@ export function Merci() {
   }
 
   if (etat.etat === "paye") {
+    const reste = (etat.totalCents ?? etat.montantCents) - etat.montantCents;
     return (
       <div className="space-y-6">
         <p className="text-xs uppercase tracking-[0.25em] text-[var(--color-accent)]">
@@ -108,12 +130,23 @@ export function Merci() {
         <div className="rounded-2xl border border-[var(--color-line)] bg-[var(--color-bg-soft)] p-5 text-[var(--color-ink-soft)]">
           <p className="font-medium text-[var(--color-ink)]">{etat.prestation}</p>
           <p className="mt-1 first-letter:uppercase">{quand(etat.debut)}</p>
-          <p className="mt-1">{formaterPrix(etat.montantCents)} réglés en ligne</p>
+          {reste > 0 ? (
+            <>
+              <p className="mt-1">Acompte de {formaterPrix(etat.montantCents)} réglé en ligne</p>
+              <p className="mt-1 text-[var(--color-ink)]">
+                Reste {formaterPrix(reste)} à régler au studio, en espèces ou par carte
+              </p>
+            </>
+          ) : (
+            <p className="mt-1">{formaterPrix(etat.montantCents)} réglés en ligne</p>
+          )}
         </div>
         <p className="text-[var(--color-ink-soft)]">
           Je vous attends au {SITE.address.street}, {SITE.address.postalCode}{" "}
-          {SITE.address.city}. Un reçu vous a été envoyé par email. En cas
-          d&apos;empêchement, prévenez-moi au {SITE.phone}.
+          {SITE.address.city}. Un reçu vous a été envoyé par email.{" "}
+          {reste > 0
+            ? `Besoin de décaler ? C'est gratuit jusqu'à 48 h avant : appelez-moi ou écrivez-moi sur WhatsApp au ${SITE.phone}.`
+            : `En cas d'empêchement, prévenez-moi au ${SITE.phone}.`}
         </p>
       </div>
     );

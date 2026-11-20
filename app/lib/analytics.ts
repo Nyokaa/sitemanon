@@ -52,6 +52,41 @@ export function trackEvent(
   else enAttente.push([name, avecDestination]);
 }
 
+/**
+ * Les identifiants GA4 de la visiteuse (client_id et session_id), transmis au
+ * script de l'agenda pour qu'il envoie begin_checkout et booking_confirmed
+ * depuis le serveur, rattaches a sa session et a la pub d'origine. Rend null
+ * si GA4 n'est pas charge (cookies refuses, autre domaine) ou ne repond pas a
+ * temps : rien n'est alors transmis, rien ne part du serveur.
+ */
+export function lireIdsGa4(
+  delaiMax = 1000
+): Promise<{ clientId: string; sessionId: string } | null> {
+  return new Promise((resoudre) => {
+    if (typeof window === "undefined" || !window.gtag) return resoudre(null);
+    let clientId: string | null = null;
+    let sessionId: string | null = null;
+    let fini = false;
+    const conclure = (r: { clientId: string; sessionId: string } | null) => {
+      if (fini) return;
+      fini = true;
+      resoudre(r);
+    };
+    const verifier = () => {
+      if (clientId && sessionId) conclure({ clientId, sessionId });
+    };
+    window.gtag("get", GA_MEASUREMENT_ID, "client_id", (v: unknown) => {
+      clientId = v ? String(v) : null;
+      verifier();
+    });
+    window.gtag("get", GA_MEASUREMENT_ID, "session_id", (v: unknown) => {
+      sessionId = v ? String(v) : null;
+      verifier();
+    });
+    window.setTimeout(() => conclure(null), delaiMax);
+  });
+}
+
 // ------------------------------------------------------------ evenements en vol
 //
 // GA4 regroupe ses envois et ne les fait partir qu'au bout d'environ cinq

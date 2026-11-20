@@ -78,6 +78,32 @@ La version complète du manifeste est dans ce dossier. Une nouvelle
 autorisation s'applique au déploiement existant, mais un changement de
 code demande une nouvelle version.
 
+## Acompte et envoi à GA4 (version 2 du script)
+
+Depuis le 20 novembre 2026 :
+
+- **Acompte de 50 %** : le script lit `tauxAcompte` dans `/reserver/catalogue.json`
+  et encaisse `arrondi(total × taux)`. Le prix total, l'acompte et le reste à
+  régler au studio sont écrits dans l'événement de l'agenda et dans le mail.
+- **Version annoncée** : chaque réponse porte `version: 2`. Le site n'affiche
+  l'acompte que si le script en ligne est en version 2 ; avec l'ancien script,
+  il garde l'affichage du paiement complet. Le montant annoncé est donc
+  toujours celui réellement encaissé, quel que soit l'ordre de mise à jour.
+- **GA4 côté serveur** : si la propriété `GA4_API_SECRET` existe et que le
+  site a transmis le `client_id` et le `session_id` GA4 de la visiteuse (ce
+  qu'il ne fait que si elle a accepté les cookies), le script envoie
+  `begin_checkout` à la création du paiement, puis `booking_confirmed` et
+  `purchase` une seule fois quand le paiement est confirmé, y compris par le
+  ménage si la cliente a fermé l'onglet. Valeur = prix total, `acompte` en
+  paramètre. Le site n'envoie alors plus ces événements lui-même.
+
+### Créer la clé secrète GA4
+
+GA4, **Admin**, **Flux de données**, flux du site, **Secrets de l'API Measurement
+Protocol**, **Créer**. Copier la valeur dans les propriétés du script, sous le
+nom `GA4_API_SECRET`. Sans cette propriété, rien ne part du serveur et le site
+continue d'envoyer ces événements comme avant.
+
 ## Modifier le script ensuite
 
 Une modification de `Code.gs` ne prend effet qu'après « Déployer »,

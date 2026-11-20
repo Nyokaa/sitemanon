@@ -102,7 +102,11 @@ export default function MentionsLegales() {
                 enregistrées dans l&apos;agenda Google de Manon Jeanpert, pour
                 le seul suivi de votre rendez-vous. Le paiement en ligne est
                 traité par Stripe : vos données de carte ne transitent jamais
-                par ce site.
+                par ce site. Si vous avez accepté les cookies, le début du
+                paiement et la confirmation du rendez-vous (prestation, montant)
+                sont aussi transmis à Google Analytics par notre service de
+                réservation, rattachés à votre visite, sans nom, téléphone ni
+                email.
               </p>
               <p className="mt-3 leading-relaxed">
                 Aucun cookie de mesure ni de publicité n&apos;est déposé tant que vous

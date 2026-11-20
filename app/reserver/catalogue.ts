@@ -313,6 +313,27 @@ export function prestationsVisibles(choisie: string | null): Prestation[] {
   return PRESTATIONS.filter((p) => !p.cachee || p.id === choisie);
 }
 
+/**
+ * Part du prix payee en ligne a la reservation ; le reste se regle au studio.
+ * Publiee dans catalogue.json : le script de l'agenda la relit pour calculer
+ * le montant Stripe, qui ne vient donc jamais du navigateur.
+ */
+export const TAUX_ACOMPTE = 0.5;
+
+/** L'acompte en centimes, meme arrondi que acompte_ dans agenda/Code.gs. */
+export function acompteCents(totalCents: number): number {
+  return Math.round(totalCents * TAUX_ACOMPTE);
+}
+
+/** Les prestations montrees d'abord, dans cet ordre ; le reste est replie. */
+export const PRESTATIONS_PHARES = [
+  "semi-permanent",
+  "gel-naturel",
+  "remplissage",
+  "gel-rallongement",
+  "diagnostic",
+];
+
 export function trouverPrestation(id: string): Prestation | undefined {
   return PRESTATIONS.find((p) => p.id === id);
 }

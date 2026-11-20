@@ -5,10 +5,20 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import vm from "node:vm";
 import { beforeEach, describe, expect, it } from "vitest";
-import { OPTIONS, PRESTATIONS, composerPanier } from "../app/reserver/catalogue";
+import {
+  OPTIONS,
+  PRESTATIONS,
+  TAUX_ACOMPTE,
+  acompteCents,
+  composerPanier,
+} from "../app/reserver/catalogue";
 
 const SOURCE = readFileSync(join(__dirname, "Code.gs"), "utf8");
-const CATALOGUE = JSON.stringify({ prestations: PRESTATIONS, options: OPTIONS });
+const CATALOGUE = JSON.stringify({
+  prestations: PRESTATIONS,
+  options: OPTIONS,
+  tauxAcompte: TAUX_ACOMPTE,
+});
 
 type Evt = {
   id: string;
@@ -51,6 +61,8 @@ function monter() {
   const cache = new Map<string, string>();
   const proprietes = new Map<string, string>([["STRIPE_SECRET", "sk_test_faux"]]);
   const recherches: string[] = [];
+  const envoisGa4: { url: string; corps: { client_id: string; events: { name: string; params: Record<string, unknown> }[] } }[] = [];
+  let ga4EnPanne = false;
   let n = 0;
 
   const versEvenement = (e: Evt) => ({
@@ -140,6 +152,11 @@ function monter() {
         if (url.endsWith("/reserver/catalogue.json")) {
           return { getContentText: () => CATALOGUE };
         }
+        if (url.startsWith("https://www.google-analytics.com/mp/collect")) {
+          if (ga4EnPanne) throw new Error("GA4 injoignable");
+          envoisGa4.push({ url, corps: JSON.parse(o!.payload as unknown as string) });
+          return reponse(204, {});
+        }
         const chemin = url.replace("https://api.stripe.com/v1", "");
         appelsStripe.push({ methode: o?.method ?? "get", chemin, champs: o?.payload });
         if (stripeEnPanne) return reponse(500, { error: { message: "panne" } });
@@ -157,6 +174,10 @@ function monter() {
               prestation: p["metadata[prestation]"],
               debut: p["metadata[debut]"],
               prenom: p["metadata[prenom]"],
+              total_cents: p["metadata[total_cents]"],
+              acompte_cents: p["metadata[acompte_cents]"],
+              ga_client_id: p["metadata[ga_client_id]"],
+              ga_session_id: p["metadata[ga_session_id]"],
             },
           };
           sessions.set(id, s);
@@ -187,6 +208,8 @@ function monter() {
   };
 
   return {
+    envoisGa4,
+    ga4Panne: () => (ga4EnPanne = true),
     cache,
     proprietes,
     recherches,
@@ -203,6 +226,7 @@ function monter() {
       appeler("doPost", { postData: { contents: JSON.stringify(corps) } }),
     get: (parametres: Record<string, string>) => appeler("doGet", { parameter: parametres }),
     menage: () => appeler("menage"),
+    acompte: (catalogue: unknown, total: number) => appeler("acompte_", catalogue, total),
   };
 }
 
@@ -263,7 +287,10 @@ describe("reserver", () => {
     });
     expect(r.ok).toBe(true);
     const creation = s.appelsStripe.find((a) => a.chemin === "/checkout/sessions")!;
-    expect(creation.champs!["line_items[0][price_data][unit_amount]"]).toBe("8000");
+    // Acompte de 50 % de 80 euros, calcule sur le catalogue : 40 euros.
+    expect(creation.champs!["line_items[0][price_data][unit_amount]"]).toBe("4000");
+    expect(creation.champs!["metadata[total_cents]"]).toBe("8000");
+    expect(r).toMatchObject({ montantCents: 4000, totalCents: 8000, version: 2 });
     // Et la duree bloquee dans l'agenda est celle du catalogue : 1h30 + 20 min.
     const e = s.evenements[0];
     expect((e.fin.getTime() - e.debut.getTime()) / 60000).toBe(110);
@@ -308,7 +335,7 @@ describe("apres le paiement", () => {
   it("confirme un paiement une seule fois, meme si la page et le menage y arrivent tous les deux", () => {
     s.sessions.get(session)!.payment_status = "paid";
     const r = s.get({ action: "confirmer", session });
-    expect(r).toMatchObject({ ok: true, statut: "paye", montantCents: 9500 });
+    expect(r).toMatchObject({ ok: true, statut: "paye", montantCents: 4750, totalCents: 9500 });
     s.get({ action: "confirmer", session });
     s.menage();
     expect(s.mails).toHaveLength(1);
@@ -316,7 +343,9 @@ describe("apres le paiement", () => {
     expect(s.mails[0].to).toBe("manon@exemple.fr");
     const e = s.evenements[0];
     expect(e.titre.startsWith("À recopier sur Planity")).toBe(true);
-    expect(e.description).toContain("95 € payé en ligne");
+    expect(e.description).toContain("Total : 95 €");
+    expect(e.description).toContain("acompte de 47,50 € payé en ligne");
+    expect(e.description).toContain("reste 47,50 € à régler au studio");
   });
 
   it("annuler libere le creneau et ferme la session", () => {
@@ -553,5 +582,115 @@ describe("occupations", () => {
     const r = s.get({ action: "occupations", debut, fin });
     expect(r.occupations).toHaveLength(1);
     expect(Object.keys(r.occupations[0]).sort()).toEqual(["debut", "fin"]);
+  });
+});
+
+describe("acompte", () => {
+  it("acompte_ rend exactement acompteCents du site, pour toute prestation et toute option", () => {
+    const s = monter();
+    const ids = OPTIONS.map((o) => o.id);
+    for (const p of PRESTATIONS) {
+      for (let m = 0; m < 1 << ids.length; m++) {
+        const opts = ids.filter((_, i) => m & (1 << i));
+        const total = composerPanier(p.id, opts, null)!.totalCents;
+        expect(s.acompte(JSON.parse(CATALOGUE), total), `${p.id} ${opts}`).toBe(acompteCents(total));
+      }
+    }
+  });
+
+  it("sans taux dans le catalogue, encaisse le prix complet plutot que moins", () => {
+    const s = monter();
+    expect(s.acompte({ prestations: [], options: [] }, 7000)).toBe(7000);
+    expect(s.acompte({ tauxAcompte: 0 }, 7000)).toBe(7000);
+    expect(s.acompte({ tauxAcompte: 2 }, 7000)).toBe(7000);
+  });
+
+  it("accepte une cliente qui n'a donne qu'un prenom", () => {
+    const s = monter();
+    const r = s.reserver({ ...CLIENTE, nom: "", prenom: "Léa", prestationId: "semi-permanent", debut: lundiProchain(9) });
+    expect(r.ok).toBe(true);
+    expect(s.evenements[0].titre.endsWith("· Léa")).toBe(true);
+  });
+});
+
+describe("GA4 cote serveur (Measurement Protocol)", () => {
+  const GA = { ga_client_id: "123456789.1700000000", ga_session_id: "1700000123" };
+
+  function reserverPayer(s: ReturnType<typeof monter>, extra: Record<string, unknown>) {
+    const r = s.reserver({ ...CLIENTE, prestationId: "gel-naturel", debut: lundiProchain(9), ...extra });
+    const session = [...s.sessions.keys()][0];
+    s.sessions.get(session)!.payment_status = "paid";
+    return { r, session };
+  }
+
+  it("envoie begin_checkout puis booking_confirmed et purchase, une seule fois, avec la valeur totale", () => {
+    const s = monter();
+    s.proprietes.set("GA4_API_SECRET", "secret-test");
+    const { r, session } = reserverPayer(s, GA);
+    expect(r.ga_serveur).toBe(true);
+    expect(s.envoisGa4).toHaveLength(1);
+    const debut = s.envoisGa4[0].corps;
+    expect(debut.client_id).toBe(GA.ga_client_id);
+    expect(debut.events[0]).toMatchObject({
+      name: "begin_checkout",
+      params: { value: 95, currency: "EUR", acompte: 47.5, session_id: GA.ga_session_id },
+    });
+    expect(s.envoisGa4[0].url).toContain("measurement_id=G-N032H9NZ3E");
+
+    expect(s.get({ action: "confirmer", session }).ga_serveur).toBe(true);
+    s.get({ action: "confirmer", session });
+    s.menage();
+    expect(s.envoisGa4).toHaveLength(2);
+    const fin = s.envoisGa4[1].corps.events;
+    expect(fin.map((e) => e.name)).toEqual(["booking_confirmed", "purchase"]);
+    expect(fin[0].params).toMatchObject({
+      value: 95,
+      acompte: 47.5,
+      transaction_id: session,
+      session_id: GA.ga_session_id,
+    });
+  });
+
+  it("une cliente qui ferme l'onglet est quand meme comptee, par le menage", () => {
+    const s = monter();
+    s.proprietes.set("GA4_API_SECRET", "secret-test");
+    reserverPayer(s, GA);
+    s.menage();
+    expect(s.envoisGa4.map((e) => e.corps.events[0].name)).toEqual(["begin_checkout", "booking_confirmed"]);
+  });
+
+  it("n'envoie rien sans les identifiants GA4, donc sans consentement", () => {
+    const s = monter();
+    s.proprietes.set("GA4_API_SECRET", "secret-test");
+    const { r, session } = reserverPayer(s, {});
+    expect(r.ga_serveur).toBe(false);
+    expect(s.get({ action: "confirmer", session }).ga_serveur).toBe(false);
+    expect(s.envoisGa4).toHaveLength(0);
+  });
+
+  it("ignore des identifiants mal formes", () => {
+    const s = monter();
+    s.proprietes.set("GA4_API_SECRET", "secret-test");
+    const { r } = reserverPayer(s, { ga_client_id: "<script>", ga_session_id: "x" });
+    expect(r.ga_serveur).toBe(false);
+    expect(s.envoisGa4).toHaveLength(0);
+  });
+
+  it("n'envoie rien sans cle secrete : le site garde alors ses envois", () => {
+    const s = monter();
+    const { r, session } = reserverPayer(s, GA);
+    expect(r.ga_serveur).toBe(false);
+    expect(s.get({ action: "confirmer", session }).ga_serveur).toBe(false);
+    expect(s.envoisGa4).toHaveLength(0);
+  });
+
+  it("une panne de GA4 ne fait jamais echouer la reservation", () => {
+    const s = monter();
+    s.proprietes.set("GA4_API_SECRET", "secret-test");
+    s.ga4Panne();
+    const { r, session } = reserverPayer(s, GA);
+    expect(r.ok).toBe(true);
+    expect(r.ga_serveur).toBe(false);
+    expect(s.get({ action: "confirmer", session }).statut).toBe("paye");
   });
 });
