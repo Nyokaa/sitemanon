@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { SITE } from "@/app/lib/site";
-import { trackEvent, trackPixel } from "@/app/lib/analytics";
+import { garderEnVol, trackEvent, trackPixel, viderEnVol } from "@/app/lib/analytics";
 import { AGENDA_URL } from "./config";
+import { CLE_ORIGINE_INTERNE, ETAPES, delaiJours, origineArrivee } from "./entonnoir";
 import {
   CATEGORIES,
   prestationsVisibles,
@@ -95,8 +96,36 @@ export function Reservation() {
   useEffect(() => {
     const id = new URLSearchParams(window.location.search).get("prestation");
     const arrivee = id ? trouverPrestation(id) : undefined;
+    // Retour sur la page apres un depart vers Stripe (abandon, retour arriere) :
+    // les evenements mis de cote partent maintenant.
+    viderEnVol();
+    let bouton: string | null = null;
+    try {
+      bouton = window.sessionStorage.getItem(CLE_ORIGINE_INTERNE);
+      window.sessionStorage.removeItem(CLE_ORIGINE_INTERNE);
+    } catch {}
+    // Un retour de Stripe (?annule=) n'est pas une nouvelle arrivee : il
+    // compterait deux fois la meme visiteuse a l'etape 1.
+    const retourStripe = new URLSearchParams(window.location.search).has("annule");
+    if (!arrivee?.cachee && !retourStripe) {
+      const origine = origineArrivee(window.location.search, document.referrer, window.location.hostname);
+      trackEvent("reservation_ouverture", {
+        etape: ETAPES.ouverture,
+        // Une pub reste une pub ; sinon, un bouton interne note fait foi.
+        origine: bouton && origine === "direct" ? "site" : origine,
+        bouton: bouton ?? "aucun",
+        prestation: arrivee?.id ?? "aucune",
+      });
+    }
     if (arrivee) {
       setPrestationId(arrivee.id);
+      if (!arrivee.cachee) trackEvent("reservation_prestation", {
+        etape: ETAPES.prestation,
+        prestation: arrivee.id,
+        value: arrivee.prixCents / 100,
+        currency: "EUR",
+        mode: "adresse",
+      });
       // Arrivee par une pub sur une prestation : elle est vue sans clic.
       if (!arrivee.cachee) trackPixel("ViewContent", {
         content_ids: [arrivee.id],
@@ -119,6 +148,7 @@ export function Reservation() {
             window.location.href = `/reserver/merci/?session=${encodeURIComponent(annule)}`;
             return;
           }
+          trackEvent("reservation_paiement_annule", {});
           setAlerte("Le paiement a été interrompu et le créneau libéré. Vous pouvez en choisir un nouveau.");
           recharger();
         })
@@ -154,6 +184,35 @@ export function Reservation() {
     return parJour;
   }, [agenda, panier?.dureeMin, jours, maintenant]);
 
+  // Etape 4 : ce que la visiteuse trouve en arrivant sur les creneaux. Une
+  // seule fois par passage a cette etape, une fois l'agenda charge.
+  const creneauxSuivis = useRef(false);
+  useEffect(() => {
+    if (etape !== "creneau") {
+      creneauxSuivis.current = false;
+      return;
+    }
+    if (creneauxSuivis.current || !panier || panier.prestation.cachee || !maintenant) return;
+    if (agenda.etat === "erreur") {
+      creneauxSuivis.current = true;
+      trackEvent("reservation_agenda_erreur", { etape: ETAPES.creneauxAffiches, prestation: panier.prestation.id });
+      return;
+    }
+    if (agenda.etat !== "pret") return;
+    creneauxSuivis.current = true;
+    const ouverts = jours.filter((d) => (creneauxParJour.get(d)?.length ?? 0) > 0);
+    if (ouverts.length === 0) {
+      trackEvent("reservation_aucun_creneau", { etape: ETAPES.creneauxAffiches, prestation: panier.prestation.id });
+      return;
+    }
+    trackEvent("reservation_creneaux_affiches", {
+      etape: ETAPES.creneauxAffiches,
+      prestation: panier.prestation.id,
+      jours_disponibles: ouverts.length,
+      premier_delai_jours: delaiJours(ouverts[0], dateParis(maintenant)),
+    });
+  }, [etape, agenda, creneauxParJour]);
+
   // Le premier jour qui a de la place est choisi d'office.
   useEffect(() => {
     if (etape !== "creneau") return;
@@ -181,7 +240,13 @@ export function Reservation() {
     setPrestationId(id);
     setOptionIds([]);
     if (p.cachee) return;
-    trackEvent("reservation_prestation", { prestation: id });
+    trackEvent("reservation_prestation", {
+      etape: ETAPES.prestation,
+      prestation: id,
+      value: p.prixCents / 100,
+      currency: "EUR",
+      mode: "clic",
+    });
     trackPixel("ViewContent", {
       content_ids: [id],
       content_type: "product",
@@ -197,6 +262,14 @@ export function Reservation() {
     if (!panier || !creneau) return;
     setEnvoi("en-cours");
     setAlerte(null);
+    const suivi = !panier.prestation.cachee;
+    // Mis de cote : si la page part vers Stripe, un envoi direct serait perdu.
+    if (suivi) garderEnVol("reservation_paiement_clic", {
+      etape: ETAPES.paiementClic,
+      prestation: panier.prestation.id,
+      value: panier.totalCents / 100,
+      currency: "EUR",
+    });
     try {
       const r = await fetch(AGENDA_URL, {
         method: "POST",
@@ -220,13 +293,17 @@ export function Reservation() {
           if (panier.prestation.cachee) window.sessionStorage.setItem("mj-paiement-essai", "1");
           else window.sessionStorage.removeItem("mj-paiement-essai");
         } catch {}
-        if (!panier.prestation.cachee) trackEvent("begin_checkout", {
-          prestation: panier.prestation.id,
+        if (panier.prestation.cachee) {
+          window.location.href = json.url;
+          return;
+        }
+        trackPixel("InitiateCheckout", {
+          content_ids: [panier.prestation.id],
           value: valeur,
           currency: "EUR",
         });
-        if (!panier.prestation.cachee) trackPixel("InitiateCheckout", {
-          content_ids: [panier.prestation.id],
+        garderEnVol("begin_checkout", {
+          prestation: panier.prestation.id,
           value: valeur,
           currency: "EUR",
         });
@@ -237,6 +314,7 @@ export function Reservation() {
         }, 300);
         return;
       } else if (json.raison === "pris") {
+        if (suivi) trackEvent("reservation_erreur", { raison: "creneau_pris", prestation: panier.prestation.id });
         setAlerte(
           "Ce créneau vient d'être réservé par quelqu'un d'autre. Choisissez-en un autre, les disponibilités sont à jour."
         );
@@ -244,15 +322,22 @@ export function Reservation() {
         setEtape("creneau");
         recharger();
       } else {
+        if (suivi) trackEvent("reservation_erreur", {
+          raison: String(json.erreur ?? "inconnue").slice(0, 40),
+          prestation: panier.prestation.id,
+        });
         setAlerte(
           `La réservation n'a pas pu être enregistrée (${json.erreur ?? "erreur inconnue"}). Vérifiez vos coordonnées, ou appelez-moi au ${SITE.phone}.`
         );
       }
     } catch {
+      if (suivi) trackEvent("reservation_erreur", { raison: "reseau", prestation: panier.prestation.id });
       setAlerte(
         `La réservation n'a pas pu être enregistrée. Réessayez dans un instant, ou appelez-moi au ${SITE.phone}.`
       );
     }
+    // Pas de depart vers Stripe : ce qui a ete mis de cote part tout de suite.
+    viderEnVol();
     setEnvoi("repos");
   };
 
@@ -393,6 +478,13 @@ export function Reservation() {
                           <button
                             type="button"
                             onClick={() => {
+                              if (panier && !p.cachee) trackEvent("reservation_vers_creneaux", {
+                                etape: ETAPES.versCreneaux,
+                                prestation: p.id,
+                                value: panier.totalCents / 100,
+                                currency: "EUR",
+                                nb_options: panier.options.length,
+                              });
                               setCreneau(null);
                               setEtape("creneau");
                               window.scrollTo({ top: 0, behavior: "smooth" });
@@ -483,7 +575,17 @@ export function Reservation() {
                         <li key={c.debut.toISOString()}>
                           <button
                             type="button"
-                            onClick={() => setCreneau(c)}
+                            onClick={() => {
+                              setCreneau(c);
+                              if (panier && maintenant && !panier.prestation.cachee) {
+                                trackEvent("reservation_creneau", {
+                                  etape: ETAPES.creneau,
+                                  prestation: panier.prestation.id,
+                                  delai_jours: delaiJours(date, dateParis(maintenant)),
+                                  heure: heureParis(c.debut),
+                                });
+                              }
+                            }}
                             className={`w-full rounded-xl border py-2.5 text-sm transition-colors ${
                               actif
                                 ? "border-[var(--color-ink)] bg-[var(--color-ink)] text-[var(--color-bg-soft)]"
@@ -509,6 +611,13 @@ export function Reservation() {
                 type="button"
                 disabled={!creneau}
                 onClick={() => {
+                  if (panier && creneau && date && maintenant && !panier.prestation.cachee) {
+                    trackEvent("reservation_coordonnees", {
+                      etape: ETAPES.coordonnees,
+                      prestation: panier.prestation.id,
+                      delai_jours: delaiJours(date, dateParis(maintenant)),
+                    });
+                  }
                   setEtape("coordonnees");
                   window.scrollTo({ top: 0, behavior: "smooth" });
                 }}

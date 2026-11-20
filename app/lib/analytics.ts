@@ -52,6 +52,47 @@ export function trackEvent(
   else enAttente.push([name, avecDestination]);
 }
 
+// ------------------------------------------------------------ evenements en vol
+//
+// GA4 regroupe ses envois et ne les fait partir qu'au bout d'environ cinq
+// secondes ; il confirme (event_callback) avant d'avoir envoye, et ne vide pas
+// sa file quand la page part. Mesure le 20 novembre 2026 : un evenement emis
+// juste avant le depart vers Stripe ne quitte jamais le navigateur.
+//
+// Ces evenements sont donc mis de cote dans la session, et envoyes au retour
+// sur le site (page merci, ou /reserver apres un abandon). Ce qui reste perdu :
+// une visiteuse qui ferme l'onglet sur Stripe.
+
+const CLE_EN_VOL = "mj-ga-en-vol";
+
+function lireEnVol(): [string, Record<string, unknown>][] {
+  try {
+    return JSON.parse(window.sessionStorage.getItem(CLE_EN_VOL) ?? "[]");
+  } catch {
+    return [];
+  }
+}
+
+/** Met un evenement de cote, pour l'envoyer au prochain chargement d'une page du site. */
+export function garderEnVol(name: string, params: Record<string, unknown> = {}): void {
+  if (typeof window === "undefined") return;
+  try {
+    window.sessionStorage.setItem(CLE_EN_VOL, JSON.stringify([...lireEnVol(), [name, params]]));
+  } catch {
+    trackEvent(name, params);
+  }
+}
+
+/** Envoie les evenements mis de cote, une seule fois. */
+export function viderEnVol(): void {
+  if (typeof window === "undefined") return;
+  const enVol = lireEnVol();
+  try {
+    window.sessionStorage.removeItem(CLE_EN_VOL);
+  } catch {}
+  for (const [n, p] of enVol) trackEvent(n, p);
+}
+
 if (typeof window !== "undefined") {
   window.addEventListener(EVENEMENT_GTAG_PRET, () => {
     while (enAttente.length) {

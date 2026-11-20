@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import Link from "next/link";
 import { trackEvent } from "@/app/lib/analytics";
+import { noterOrigineInterne } from "@/app/reserver/entonnoir";
 import { RESERVER_URL } from "@/app/components/BookingButton";
 
 export function MobileStickyCta() {
@@ -31,7 +32,10 @@ export function MobileStickyCta() {
         >
           <Link
             href={RESERVER_URL}
-            onClick={() => trackEvent("booking_click", { source: "mobile_sticky" })}
+            onClick={() => {
+              trackEvent("booking_click", { source: "mobile_sticky" });
+              noterOrigineInterne("mobile_sticky");
+            }}
             className="flex items-center justify-center gap-2 rounded-full bg-[var(--color-ink)] px-6 py-4 text-sm font-medium tracking-wide text-[var(--color-bg-soft)] shadow-[0_15px_30px_-10px_rgba(44,58,46,0.55)] transition-all active:scale-[0.98]"
           >
             <span>Prendre rendez-vous</span>

@@ -67,3 +67,41 @@ describe("trackEvent", () => {
     expect(fenetre.gtag).toBeUndefined();
   });
 });
+
+describe("evenements en vol", () => {
+  function session() {
+    const m = new Map<string, string>();
+    return {
+      getItem: (k: string) => (m.has(k) ? m.get(k)! : null),
+      setItem: (k: string, v: string) => m.set(k, v),
+      removeItem: (k: string) => m.delete(k),
+    };
+  }
+
+  it("garde sans envoyer, puis envoie dans l'ordre au retour, une seule fois", async () => {
+    (fenetre as Record<string, unknown>).sessionStorage = session();
+    const { garderEnVol, viderEnVol } = await import("./analytics");
+    const appels: unknown[][] = [];
+    fenetre.gtag = (...a) => appels.push(a);
+
+    garderEnVol("reservation_paiement_clic", { value: 70 });
+    garderEnVol("begin_checkout", { value: 70 });
+    expect(appels).toHaveLength(0); // rien ne part avant le depart vers Stripe
+
+    viderEnVol(); // retour sur le site
+    expect(appels.map((a) => a[1])).toEqual(["reservation_paiement_clic", "begin_checkout"]);
+    viderEnVol();
+    expect(appels).toHaveLength(2);
+  });
+
+  it("sans GA4 charge au retour, les evenements attendent gtag comme les autres", async () => {
+    (fenetre as Record<string, unknown>).sessionStorage = session();
+    const { garderEnVol, viderEnVol, EVENEMENT_GTAG_PRET } = await import("./analytics");
+    garderEnVol("begin_checkout", { value: 70 });
+    viderEnVol();
+    const appels: unknown[][] = [];
+    fenetre.gtag = (...a) => appels.push(a);
+    fenetre.emettre(EVENEMENT_GTAG_PRET);
+    expect(appels.map((a) => a[1])).toEqual(["begin_checkout"]);
+  });
+});

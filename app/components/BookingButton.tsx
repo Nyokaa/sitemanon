@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { SITE } from "@/app/lib/site";
 import { trackEvent } from "@/app/lib/analytics";
+import { noterOrigineInterne } from "@/app/reserver/entonnoir";
 
 type Props = {
   className?: string;
@@ -66,7 +67,10 @@ export function BookingButton({
     </>
   );
   const classes = `${base} ${variants[variant]} ${sizes[size]} ${className}`;
-  const clic = () => trackEvent("booking_click", { source });
+  const clic = () => {
+    trackEvent("booking_click", { source });
+    if (interne) noterOrigineInterne(source);
+  };
 
   // Reservation sur le site : lien interne, meme onglet. Next change de page
   // sans recharger, donc booking_click a le temps de partir.

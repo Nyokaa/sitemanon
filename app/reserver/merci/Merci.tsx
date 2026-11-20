@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { SITE } from "@/app/lib/site";
-import { trackEvent, trackPixel } from "@/app/lib/analytics";
+import { trackEvent, trackPixel, viderEnVol } from "@/app/lib/analytics";
 import { AGENDA_URL } from "../config";
 import { formaterPrix } from "../catalogue";
 import { FUSEAU } from "../creneaux";
@@ -83,6 +83,9 @@ export function Merci() {
   };
 
   useEffect(() => {
+    // D'abord les etapes mises de cote au depart vers Stripe, pour garder
+    // l'ordre : paiement_clic, begin_checkout, puis booking_confirmed.
+    viderEnVol();
     const id = new URLSearchParams(window.location.search).get("session");
     setSession(id);
     if (id && AGENDA_URL) verifier(id);
