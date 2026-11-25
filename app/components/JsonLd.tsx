@@ -14,7 +14,7 @@ export function JsonLd() {
     url: SITE_URL,
     telephone: SITE.phoneE164,
     image: `${SITE_URL}/og.jpg`,
-    priceRange: "€10-€125",
+    priceRange: "€10-€135",
     inLanguage: "fr-FR",
     currenciesAccepted: "EUR",
     paymentAccepted: "Cash, Credit Card",

@@ -302,10 +302,10 @@ describe("reserver", () => {
     });
     expect(r.ok).toBe(true);
     const creation = s.appelsStripe.find((a) => a.chemin === "/checkout/sessions")!;
-    // Acompte de 50 % de 80 euros, calcule sur le catalogue : 40 euros.
-    expect(creation.champs!["line_items[0][price_data][unit_amount]"]).toBe("4000");
-    expect(creation.champs!["metadata[total_cents]"]).toBe("8000");
-    expect(r).toMatchObject({ montantCents: 4000, totalCents: 8000, version: 3 });
+    // Acompte de 50 % de 85 euros, calcule sur le catalogue : 42,50 euros.
+    expect(creation.champs!["line_items[0][price_data][unit_amount]"]).toBe("4250");
+    expect(creation.champs!["metadata[total_cents]"]).toBe("8500");
+    expect(r).toMatchObject({ montantCents: 4250, totalCents: 8500, version: 3 });
     // Et la duree bloquee dans l'agenda est celle du catalogue : 1h30 + 20 min.
     const e = s.evenements[0];
     expect((e.fin.getTime() - e.debut.getTime()) / 60000).toBe(110);
@@ -350,7 +350,7 @@ describe("apres le paiement", () => {
   it("confirme un paiement une seule fois, meme si la page et le menage y arrivent tous les deux", () => {
     s.sessions.get(session)!.payment_status = "paid";
     const r = s.get({ action: "confirmer", session });
-    expect(r).toMatchObject({ ok: true, statut: "paye", montantCents: 4750, totalCents: 9500 });
+    expect(r).toMatchObject({ ok: true, statut: "paye", montantCents: 5000, totalCents: 10000 });
     s.get({ action: "confirmer", session });
     s.menage();
     expect(s.mails).toHaveLength(1);
@@ -358,9 +358,9 @@ describe("apres le paiement", () => {
     expect(s.mails[0].to).toBe("manon@exemple.fr");
     const e = s.evenements[0];
     expect(e.titre.startsWith("À recopier sur Planity")).toBe(true);
-    expect(e.description).toContain("Total : 95 €");
-    expect(e.description).toContain("acompte de 47,50 € payé en ligne");
-    expect(e.description).toContain("reste 47,50 € à régler au studio");
+    expect(e.description).toContain("Total : 100 €");
+    expect(e.description).toContain("acompte de 50 € payé en ligne");
+    expect(e.description).toContain("reste 50 € à régler au studio");
   });
 
   it("annuler libere le creneau et ferme la session", () => {
@@ -648,7 +648,7 @@ describe("GA4 cote serveur (Measurement Protocol)", () => {
     expect(debut.client_id).toBe(GA.ga_client_id);
     expect(debut.events[0]).toMatchObject({
       name: "begin_checkout",
-      params: { value: 95, currency: "EUR", acompte: 47.5, session_id: GA.ga_session_id },
+      params: { value: 100, currency: "EUR", acompte: 50, session_id: GA.ga_session_id },
     });
     expect(s.envoisGa4[0].url).toContain("measurement_id=G-N032H9NZ3E");
 
@@ -659,8 +659,8 @@ describe("GA4 cote serveur (Measurement Protocol)", () => {
     const fin = s.envoisGa4[1].corps.events;
     expect(fin.map((e) => e.name)).toEqual(["booking_confirmed", "purchase"]);
     expect(fin[0].params).toMatchObject({
-      value: 95,
-      acompte: 47.5,
+      value: 100,
+      acompte: 50,
       transaction_id: session,
       session_id: GA.ga_session_id,
     });
@@ -735,7 +735,7 @@ describe("relances des reservations non finalisees", () => {
       etape: "coordonnees",
       telephone: "06 00 00 00 00",
       prestation: "Semi-permanent + French",
-      totalCents: 8000,
+      totalCents: 8500,
     });
   });
 
@@ -777,7 +777,7 @@ describe("relances des reservations non finalisees", () => {
     s.reserver(partiel());
     const r = s.reserver({ ...CLIENTE, relanceId: ID, prestationId: "semi-permanent", optionIds: ["french"], debut: lundiProchain(9) });
     expect(r.ok).toBe(true);
-    expect(s.relances()[0]).toMatchObject({ etape: "stripe", acompteCents: 4000 });
+    expect(s.relances()[0]).toMatchObject({ etape: "stripe", acompteCents: 4250 });
     const session = [...s.sessions.keys()][0];
     s.vieillirRelances(40);
     s.menage();
@@ -786,7 +786,7 @@ describe("relances des reservations non finalisees", () => {
     s.menage();
     const relance = s.mails.filter((m) => m.subject.startsWith("Réservation non finalisée"));
     expect(relance).toHaveLength(1);
-    expect(relance[0].body).toContain("acompte 40 €");
+    expect(relance[0].body).toContain("acompte 42,50 €");
     expect(relance[0].body).toContain("page de paiement Stripe ouverte");
   });
 

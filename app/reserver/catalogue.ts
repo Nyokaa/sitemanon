@@ -65,14 +65,6 @@ export const OPTIONS: Option[] = [
     jusquau: "2026-11-30",
   },
   {
-    id: "manucure-profonde",
-    nom: "Manucure profonde",
-    description:
-      "Préparation minutieuse des cuticules pour un contour parfaitement net.",
-    dureeMin: 15,
-    prixCents: 1000,
-  },
-  {
     id: "french",
     nom: "French",
     description: "Finition French sur votre pose.",
@@ -104,7 +96,9 @@ export const OPTIONS: Option[] = [
   },
 ];
 
-const POSE = ["cocooning", "manucure-profonde", "french", "baby-boomer", "nail-art"];
+// La manucure russe est desormais comprise dans chaque pose (Planity,
+// 24 novembre 2026) : plus de supplement « manucure profonde ».
+const POSE = ["cocooning", "french", "baby-boomer", "nail-art"];
 
 export const PRESTATIONS: Prestation[] = [
   {
@@ -122,9 +116,9 @@ export const PRESTATIONS: Prestation[] = [
     categorie: "mains",
     nom: "Semi-permanent",
     description:
-      "Préparation des ongles, soin des cuticules, base, couleur de votre choix et finition.",
+      "Commence par une manucure russe (cuticules travaillées pour un rendu net), puis base, couleur de votre choix et finition brillante.",
     dureeMin: 90,
-    prixCents: 7000,
+    prixCents: 7500,
     options: POSE,
   },
   {
@@ -132,9 +126,9 @@ export const PRESTATIONS: Prestation[] = [
     categorie: "mains",
     nom: "Gel sur ongles naturels",
     description:
-      "Une structure en gel pour des ongles plus solides, avec un résultat naturel. Couleur de votre choix.",
+      "Manucure russe, puis une structure en gel adaptée pour des ongles plus solides, avec un résultat naturel. Couleur de votre choix.",
     dureeMin: 90,
-    prixCents: 9500,
+    prixCents: 10000,
     options: POSE,
   },
   {
@@ -142,9 +136,9 @@ export const PRESTATIONS: Prestation[] = [
     categorie: "mains",
     nom: "Gel rallongement",
     description:
-      "Gagner de la longueur ou corriger la forme de vos ongles, en gel. Couleur de votre choix.",
+      "Manucure russe, puis un rallongement en gel pour gagner de la longueur ou corriger la forme. Couleur de votre choix.",
     dureeMin: 115,
-    prixCents: 12500,
+    prixCents: 13000,
     options: POSE,
   },
   {
@@ -152,9 +146,9 @@ export const PRESTATIONS: Prestation[] = [
     categorie: "mains",
     nom: "Remplissage",
     description:
-      "Pour entretenir une pose gel existante, y compris réalisée par une autre prothésiste si son état le permet.",
+      "Manucure russe et remplissage de la repousse d'une pose gel existante, y compris réalisée par une autre prothésiste si son état le permet.",
     dureeMin: 105,
-    prixCents: 10500,
+    prixCents: 11000,
     options: POSE,
   },
   {
@@ -182,31 +176,31 @@ export const PRESTATIONS: Prestation[] = [
   {
     id: "depose-acrylique",
     categorie: "depose",
-    nom: "Dépose acrylique, porcelaine, résine",
+    nom: "Dépose porcelaine ou résine & soin japonais",
     description:
-      "Retrait adapté à la matière, limage et durcisseur. Produit d'entretien offert (valeur 18 €).",
-    dureeMin: 60,
-    prixCents: 6800,
+      "Retrait adapté à la matière, manucure complète puis manucure japonaise. Produit d'entretien offert (valeur 18 €).",
+    dureeMin: 120,
+    prixCents: 13500,
     options: [],
   },
   {
     id: "depose-gel",
     categorie: "depose",
-    nom: "Dépose gel",
+    nom: "Dépose gel & soin japonais",
     description:
-      "Retrait du gel, limage et durcisseur. Produit d'entretien offert (valeur 18 €).",
-    dureeMin: 30,
-    prixCents: 4800,
+      "Retrait du gel, manucure complète puis manucure japonaise. Produit d'entretien offert (valeur 18 €).",
+    dureeMin: 90,
+    prixCents: 11500,
     options: [],
   },
   {
     id: "depose-semi",
     categorie: "depose",
-    nom: "Dépose semi-permanent",
+    nom: "Dépose semi-permanent & soin japonais",
     description:
-      "Retrait du vernis, limage et durcisseur. Produit d'entretien offert (valeur 18 €).",
-    dureeMin: 20,
-    prixCents: 3800,
+      "Retrait du semi-permanent, manucure complète puis manucure japonaise. Produit d'entretien offert (valeur 18 €).",
+    dureeMin: 75,
+    prixCents: 10500,
     options: [],
   },
   {

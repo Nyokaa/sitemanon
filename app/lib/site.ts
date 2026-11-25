@@ -48,7 +48,7 @@ export const SERVICES = [
     description:
       "Pose semi-permanente sur ongles naturels, finition impeccable, tenue jusqu'à 4 semaines.",
     duration: "1 h 30",
-    price: "70 €",
+    price: "75 €",
     highlight: true,
   },
   {
@@ -57,7 +57,7 @@ export const SERVICES = [
     description:
       "Renforcement et sublimation de l'ongle naturel, sans ajout de longueur. Tenue 3 à 4 semaines.",
     duration: "1 h 30",
-    price: "95 €",
+    price: "100 €",
     highlight: false,
   },
   {
@@ -66,7 +66,7 @@ export const SERVICES = [
     description:
       "Entretien de votre pose existante toutes les 3 à 4 semaines, pour un résultat toujours net.",
     duration: "1 h 45",
-    price: "105 €",
+    price: "110 €",
     highlight: true,
   },
   {
@@ -75,7 +75,7 @@ export const SERVICES = [
     description:
       "Création d'une longueur sur-mesure, forme adaptée à votre main et à votre quotidien.",
     duration: "1 h 55",
-    price: "125 €",
+    price: "130 €",
     highlight: false,
   },
   {
@@ -88,30 +88,21 @@ export const SERVICES = [
     highlight: false,
   },
   {
-    id: "manucure-profonde",
-    name: "Supplément manucure profonde",
-    description:
-      "Préparation minutieuse des cuticules pour un contour parfaitement net, proche d'une manucure russe. Uniquement en complément d'une prestation mains.",
-    duration: "15 min",
-    price: "10 €",
-    highlight: false,
-  },
-  {
     id: "depose-gel",
-    name: "Dépose gel",
+    name: "Dépose gel & soin japonais",
     description:
-      "Retrait soigné de la pose gel, dans le respect de l'ongle. Produit d'entretien offert (valeur 18 €).",
-    duration: "30 min",
-    price: "48 €",
+      "Retrait soigné de la pose gel, manucure complète puis manucure japonaise. Produit d'entretien offert (valeur 18 €).",
+    duration: "1 h 30",
+    price: "115 €",
     highlight: false,
   },
   {
     id: "depose-semi",
-    name: "Dépose semi-permanent",
+    name: "Dépose semi-permanent & soin japonais",
     description:
-      "Retrait du semi-permanent en douceur, sans abîmer l'ongle. Produit d'entretien offert (valeur 18 €).",
-    duration: "20 min",
-    price: "38 €",
+      "Retrait du semi-permanent en douceur, manucure complète puis manucure japonaise. Produit d'entretien offert (valeur 18 €).",
+    duration: "1 h 15",
+    price: "105 €",
     highlight: false,
   },
 ];

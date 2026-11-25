@@ -115,9 +115,9 @@ describe("catalogue", () => {
   });
 
   it("additionne duree et prix des options", () => {
-    const panier = composerPanier("semi-permanent", ["french", "manucure-profonde"], "2026-12-01");
-    expect(panier?.dureeMin).toBe(90 + 20 + 15);
-    expect(panier?.totalCents).toBe(7000 + 1000 + 1000);
+    const panier = composerPanier("semi-permanent", ["french", "baby-boomer"], "2026-12-01");
+    expect(panier?.dureeMin).toBe(90 + 20 + 20);
+    expect(panier?.totalCents).toBe(7500 + 1000 + 1000);
   });
 
   it("ecarte une option qui n'est pas proposee pour la prestation", () => {
@@ -145,7 +145,7 @@ describe("catalogue", () => {
   it("le nail art reserve 15 minutes sans rien facturer en ligne", () => {
     const panier = composerPanier("semi-permanent", ["nail-art"], "2026-12-01")!;
     expect(panier.dureeMin).toBe(90 + 15);
-    expect(panier.totalCents).toBe(7000);
+    expect(panier.totalCents).toBe(7500);
     expect(panier.options.map((o) => o.id)).toEqual(["nail-art"]);
   });
 
