@@ -140,7 +140,7 @@ function HeroVisual() {
           Réservation
         </p>
         <p className="mt-1 font-serif text-lg text-[var(--color-ink)]">
-          24h/24 sur Planity
+          24h/24 en ligne
         </p>
       </div>
     </div>

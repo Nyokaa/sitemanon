@@ -46,10 +46,10 @@ export function Footer() {
                 href={SITE.planityUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                onClick={() => trackEvent("booking_click", { source: "footer" })}
+                onClick={() => trackEvent("booking_click", { source: "footer_planity" })}
                 className="hover:text-[var(--color-ink)]"
               >
-                Prendre rendez-vous
+                Planity
               </a>
             </li>
             <li>

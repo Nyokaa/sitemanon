@@ -4,6 +4,7 @@ import { useId, useState } from "react";
 import { Container } from "@/app/components/Container";
 import { SectionHeader } from "@/app/components/SectionHeader";
 import { FAQ } from "@/app/lib/site";
+import { BookingButton } from "@/app/components/BookingButton";
 
 export function Faq() {
   const baseId = useId();
@@ -84,6 +85,11 @@ export function Faq() {
               );
             })}
           </ul>
+        </div>
+        <div className="mt-12 flex justify-center">
+          <BookingButton size="md" source="faq">
+            Réserver mon créneau
+          </BookingButton>
         </div>
       </Container>
     </section>

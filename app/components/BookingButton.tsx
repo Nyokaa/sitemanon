@@ -10,7 +10,7 @@ type Props = {
   variant?: "primary" | "ghost" | "accent";
   size?: "sm" | "md" | "lg";
   source?: string;
-  /** Destination : Planity (nouvel onglet, par defaut) ou la page /reserver/. */
+  /** Destination : la page /reserver/ (par defaut) ou Planity (nouvel onglet). */
   vers?: "planity" | "reserver";
   children?: React.ReactNode;
 };
@@ -44,7 +44,7 @@ export function BookingButton({
   variant = "primary",
   size = "md",
   source = "default",
-  vers = "planity",
+  vers = "reserver",
   children = "Prendre rendez-vous",
 }: Props) {
   const interne = vers === "reserver";

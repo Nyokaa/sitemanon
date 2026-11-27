@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { Container } from "@/app/components/Container";
 import { BookingButton } from "@/app/components/BookingButton";
 import { SITE } from "@/app/lib/site";
+import { trackEvent } from "@/app/lib/analytics";
 
 export function FinalCta() {
   return (
@@ -26,7 +27,7 @@ export function FinalCta() {
             <span className="italic text-[var(--color-accent-soft)]">faits pour vous</span> ?
           </h2>
           <p className="mx-auto mt-6 max-w-xl text-base leading-relaxed text-[var(--color-bg-soft)]/75 md:text-lg">
-            Réservez votre créneau en ligne sur Planity, ou appelez-moi
+            Réservez votre créneau en ligne en quelques clics, ou appelez-moi
             directement. Le studio vous attend à Lyon 6.
           </p>
 
@@ -42,6 +43,10 @@ export function FinalCta() {
               {SITE.phone}
             </a>
           </div>
+          <p className="mt-6 text-xs text-[var(--color-bg-soft)]/45">
+            Vous préférez Planity ?{" "}
+            <BookingButtonPlanity />
+          </p>
         </motion.div>
       </Container>
     </section>
@@ -54,5 +59,19 @@ function CtaBackground() {
       <div className="pointer-events-none absolute -top-32 left-1/2 h-[36rem] w-[36rem] -translate-x-1/2 rounded-full bg-[radial-gradient(closest-side,_rgba(178,92,63,0.4),_transparent_70%)] blur-3xl" />
       <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[var(--color-accent)]/40 to-transparent" />
     </>
+  );
+}
+
+function BookingButtonPlanity() {
+  return (
+    <a
+      href={SITE.planityUrl}
+      target="_blank"
+      rel="noopener noreferrer"
+      onClick={() => trackEvent("booking_click", { source: "final_cta_planity" })}
+      className="underline underline-offset-4 hover:text-[var(--color-bg-soft)]/75"
+    >
+      Réserver sur Planity
+    </a>
   );
 }

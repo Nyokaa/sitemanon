@@ -21,7 +21,7 @@ export const SITE = {
     "https://www.google.com/search?q=Manon+Jeanpert+Proth%C3%A9siste+ongulaire+Lyon+6",
   instagramUrl: "https://www.instagram.com/manonjeanpert/",
   facebookUrl: "https://www.facebook.com/",
-  googleRating: 5,
+  googleRating: 4.9,
   googleReviewCount: 64,
   googleReviewsUrl:
     "https://www.google.com/search?sca_esv=f746b67cbf3d13a5&q=Manon+Jeanpert+Proth%C3%A9siste+ongulaire+%C3%A0+Lyon+6+Avis&stick=H4sIAAAAAAAAAONgkxI2NzYxsbSwMLKwMDA1MzW2MDe22MDI-IrRwjcxLz9PwSs1Ma8gtahE4VHDZIWAovySjMMrizOLS1IV8vPSS3MSM4tSFQ4vUPCpBKo1U3AsyyxexEq2VgDdV8jkkAAAAA&rldimm=7344988288056538738&tbm=lcl",
@@ -37,7 +37,7 @@ export const SERVICES = [
     id: "diagnostic",
     name: "Diagnostic ongulaire",
     description:
-      "Analyse personnalisée de vos ongles, mode de vie et envies, avant toute prestation. Le tarif est déduit de la pose réalisée ensuite.",
+      "Analyse personnalisée de vos ongles, mode de vie et envies, pour choisir la technique la plus adaptée.",
     duration: "30 min",
     price: "10 €",
     highlight: false,
@@ -110,7 +110,7 @@ export const SERVICES = [
 export const FAQ = [
   {
     q: "Comment se déroule un premier rendez-vous ?",
-    a: "On commence toujours par un diagnostic ongulaire (30 min, 10 € déduits de la prestation) : on parle de votre mode de vie, de vos contraintes et on choisit ensemble la technique la plus adaptée. Aucune pose standardisée — tout est sur-mesure.",
+    a: "On commence toujours par un diagnostic ongulaire (30 min, 10 €) : on parle de votre mode de vie, de vos contraintes et on choisit ensemble la technique la plus adaptée. Aucune pose standardisée — tout est sur-mesure.",
   },
   {
     q: "Combien de temps tient une pose ?",
@@ -126,7 +126,7 @@ export const FAQ = [
   },
   {
     q: "Comment réserver ?",
-    a: "En ligne 24h/24 sur ce site, avec un acompte de 50 % (le reste au studio), sur Planity, ou par téléphone au 06 81 80 59 56.",
+    a: "En ligne 24h/24 sur ce site, avec un acompte de 50 % (le reste au studio), ou par téléphone au 06 81 80 59 56.",
   },
   {
     q: "Quels moyens de paiement acceptez-vous ?",

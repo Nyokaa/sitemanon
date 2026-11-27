@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { Container } from "@/app/components/Container";
 import { SectionHeader } from "@/app/components/SectionHeader";
 import { GoogleRating } from "@/app/components/GoogleRating";
+import { BookingButton } from "@/app/components/BookingButton";
 import { SITE } from "@/app/lib/site";
 
 const REVIEWS = [
@@ -88,6 +89,11 @@ export function Reviews() {
           >
             Voir tous les avis Google →
           </a>
+        </div>
+        <div className="mt-12 flex justify-center">
+          <BookingButton size="md" source="reviews">
+            Réserver mon créneau
+          </BookingButton>
         </div>
       </Container>
     </section>

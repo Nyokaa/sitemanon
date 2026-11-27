@@ -16,7 +16,7 @@ export function GoogleRating({ className = "", variant = "light" }: Props) {
       href={SITE.googleReviewsUrl}
       target="_blank"
       rel="noopener noreferrer"
-      aria-label={`Note Google : ${SITE.googleRating} sur 5, ${SITE.googleReviewCount} avis — voir tous les avis`}
+      aria-label={`Note Google : ${SITE.googleRating.toFixed(1).replace(".", ",")} sur 5, ${SITE.googleReviewCount} avis — voir tous les avis`}
       className={`inline-flex items-center gap-2.5 text-sm transition-opacity hover:opacity-80 ${className}`}
     >
       <span className="flex gap-0.5 text-[var(--color-accent)]">
@@ -37,7 +37,7 @@ export function GoogleRating({ className = "", variant = "light" }: Props) {
         ))}
       </span>
       <span className={`font-medium ${ink}`}>
-        {SITE.googleRating.toFixed(1)}/5
+        {SITE.googleRating.toFixed(1).replace(".", ",")}/5
       </span>
       <span className={muted}>
         · {SITE.googleReviewCount} avis Google

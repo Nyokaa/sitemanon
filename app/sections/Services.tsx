@@ -20,7 +20,7 @@ export function Services() {
           <SectionHeader
             eyebrow="Prestations & tarifs"
             title="Des prestations adaptées à chaque cliente."
-            intro="Toutes les poses commencent par un diagnostic. Le tarif du diagnostic est déduit de la prestation réalisée."
+            intro="Vous hésitez sur la technique ? Un diagnostic de 30 minutes permet de choisir celle qui vous convient."
           />
           <div className="hidden md:block">
             <BookingButton variant="primary" size="md" source="services_top" />

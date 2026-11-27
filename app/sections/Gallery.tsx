@@ -9,6 +9,7 @@ import { Container } from "@/app/components/Container";
 import { SectionHeader } from "@/app/components/SectionHeader";
 import { SITE } from "@/app/lib/site";
 import { asset } from "@/app/lib/asset";
+import { BookingButton } from "@/app/components/BookingButton";
 
 type Category = "nude" | "color" | "art" | "long";
 
@@ -214,6 +215,11 @@ export function Gallery() {
               />
             ))}
           </div>
+          <div className="mt-12 flex justify-center">
+          <BookingButton size="md" source="gallery">
+            Je veux ce résultat
+          </BookingButton>
+        </div>
         </Container>
       </div>
     </section>

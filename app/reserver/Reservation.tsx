@@ -632,7 +632,7 @@ export function Reservation() {
             rel="noopener noreferrer"
             className="font-medium text-[var(--color-ink)] underline-offset-4 hover:underline"
           >
-            <span aria-hidden className="text-[var(--color-accent)]">★★★★★</span> 5/5 sur{" "}
+            <span aria-hidden className="text-[var(--color-accent)]">★★★★★</span> {SITE.googleRating.toFixed(1).replace(".", ",")}/5 sur{" "}
             {SITE.googleReviewCount} avis Google
           </a>
           <span className="mx-2 text-[var(--color-ink)]/30">·</span>

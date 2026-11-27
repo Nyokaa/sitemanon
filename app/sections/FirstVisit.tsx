@@ -3,12 +3,13 @@
 import { motion } from "framer-motion";
 import { Container } from "@/app/components/Container";
 import { Reveal } from "@/app/components/Reveal";
+import { BookingButton } from "@/app/components/BookingButton";
 
 const POINTS = [
   {
     title: "On commence par discuter",
     body:
-      "Le diagnostic (30 min, 10 €) sert à comprendre votre quotidien, vos contraintes et vos envies. Le tarif est ensuite déduit de la pose. Aucun engagement.",
+      "Le diagnostic (30 min, 10 €) sert à comprendre votre quotidien, vos contraintes et vos envies. Aucun engagement.",
   },
   {
     title: "On choisit ensemble",
@@ -78,6 +79,11 @@ export function FirstVisit() {
               ))}
             </ol>
           </div>
+        </div>
+        <div className="mt-12 flex justify-center">
+          <BookingButton size="md" source="first_visit">
+            Réserver mon premier rendez-vous
+          </BookingButton>
         </div>
       </Container>
     </section>
